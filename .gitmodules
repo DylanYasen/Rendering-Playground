@@ -1,0 +1,3 @@
+[submodule "external/src/sdl"]
+	path = external/src/sdl
+	url = https://github.com/DylanYasen/SDL

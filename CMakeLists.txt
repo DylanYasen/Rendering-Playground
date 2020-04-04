@@ -16,7 +16,13 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME})
 add_executable(${PROJECT_NAME} src/main.cpp)
 
 # SDL
-set(SDL_STATIC false)
+set(SDL_STATIC OFF)
 add_subdirectory(external/src/sdl)
 include_directories(external/src/sdl/include)
 target_link_libraries(${PROJECT_NAME} SDL2)
+
+#GLAD
+add_subdirectory(external/src/glad)
+set(GLAD_ALL_EXTENSIONS ON)
+include_directories(external/src/glad/include/glad)
+target_link_libraries(${PROJECT_NAME} glad)

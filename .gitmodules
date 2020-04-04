@@ -1,3 +1,6 @@
 [submodule "external/src/sdl"]
 	path = external/src/sdl
 	url = https://github.com/DylanYasen/SDL
+[submodule "external/src/glad"]
+	path = external/src/glad
+	url = https://github.com/Dav1dde/glad

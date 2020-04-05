@@ -4,9 +4,6 @@
 
 #include <glad/glad.h>
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
-
 namespace GL
 {
 	unsigned int programID = 0;
@@ -225,10 +222,10 @@ int main(int argc, char const* argv[])
 	{
 		//Create window
 		window = SDL_CreateWindow("Renderer Playground",
-			SDL_WINDOWPOS_UNDEFINED,
-			SDL_WINDOWPOS_UNDEFINED,
-			SCREEN_WIDTH,
-			SCREEN_HEIGHT,
+			SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED,
+			800,
+			600,
 			SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
 		if (window == NULL)

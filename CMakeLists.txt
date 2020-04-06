@@ -39,8 +39,8 @@ if(WIN32)
     set_source_files_properties(src/vertex.hlsl PROPERTIES VS_SHADER_FLAGS "/Fh \"$(OutDir)%(Filename).h\"" VS_SHADER_TYPE Vertex VS_SHADER_MODEL ${ShaderModel} VS_SHADER_ENTRYPOINT vert)
 	set_source_files_properties(src/pixel.hlsl PROPERTIES VS_SHADER_FLAGS "/Fh \"$(OutDir)%(Filename).h\"" VS_SHADER_TYPE Pixel  VS_SHADER_MODEL ${ShaderModel} VS_SHADER_ENTRYPOINT frag)
 
+    # work dir for visual studio
+    set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(OutDir)")
+
     target_link_libraries(${PROJECT_NAME} d3d11 D3DCompiler)
 endif()
-
-# work dir for visual studio
-set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(OutDir)")

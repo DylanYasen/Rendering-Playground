@@ -13,6 +13,8 @@ set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}) 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}) 
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/CMakeModules)
+
 add_executable(${PROJECT_NAME} src/main.cpp)
 
 # SDL
@@ -21,13 +23,13 @@ add_subdirectory(external/src/sdl)
 include_directories(external/src/sdl/include)
 target_link_libraries(${PROJECT_NAME} SDL2)
 
-#GLAD
+# GLAD
 add_subdirectory(external/src/glad)
 set(GLAD_ALL_EXTENSIONS ON)
 include_directories(external/src/glad/include/glad)
 target_link_libraries(${PROJECT_NAME} glad)
 
-#D3D11
+# D3D11
 if(WIN32)
     target_sources(${PROJECT_NAME} 
         PRIVATE
@@ -38,9 +40,18 @@ if(WIN32)
     set(ShaderModel 5.0)
     set_source_files_properties(src/vertex.hlsl PROPERTIES VS_SHADER_FLAGS "/Fh \"$(OutDir)%(Filename).h\"" VS_SHADER_TYPE Vertex VS_SHADER_MODEL ${ShaderModel} VS_SHADER_ENTRYPOINT vert)
 	set_source_files_properties(src/pixel.hlsl PROPERTIES VS_SHADER_FLAGS "/Fh \"$(OutDir)%(Filename).h\"" VS_SHADER_TYPE Pixel  VS_SHADER_MODEL ${ShaderModel} VS_SHADER_ENTRYPOINT frag)
-
-    # work dir for visual studio
-    set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(OutDir)")
-
     target_link_libraries(${PROJECT_NAME} d3d11 D3DCompiler)
+
+      # work dir for visual studio
+      set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(OutDir)")
+endif()
+
+# Vulkan
+find_package(Vulkan REQUIRED)
+include_directories(${VULKAN_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} ${VULKAN_LIBRARY})
+if(WIN32)
+# post build hook for transpiling glsl to spv
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND call "$(SolutionDir)scripts/transpileGlsl.bat" "$(OutDir)shaders")
+
 endif()

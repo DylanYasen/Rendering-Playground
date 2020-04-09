@@ -1,0 +1,38 @@
+#pragma once
+
+#include <string>
+#include <unordered_map>
+
+struct ShaderSource
+{
+	std::string vertex;
+	std::string fragment;
+};
+
+class Shader
+{
+private:
+	unsigned int rendererID;
+	std::string filepath;
+	std::unordered_map<std::string, int> uniformCache;
+
+public:
+	Shader(const std::string& filepath);
+	~Shader();
+
+	void Bind() const;
+	void Unbind() const;
+
+	void SetUniform1f(const std::string& name, float v0);
+	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
+
+
+private:
+	int GetUniformLocation(const std::string& name);
+
+	unsigned int CreateShader(const struct ShaderSource& src);
+	unsigned int CompileShader(const char* shaderSrc, unsigned int type);
+	struct ShaderSource ParseShader(const std::string& filepath);
+	void PrintShaderLog(unsigned int shader);
+
+};

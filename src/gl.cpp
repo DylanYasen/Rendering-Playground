@@ -156,18 +156,6 @@ namespace GL
 			texture->Bind();
 			shader->SetUniform1i("u_texture", 0);
 
-			//GLCall(glGenBuffers(1, &VBO));
-			//GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-			//GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), vertexData, GL_STATIC_DRAW));
-
-			//const unsigned int indexData[] = { 0,1,2,2,3,0 };
-			//GLCall(glGenBuffers(1, &IBO));
-			//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
-			//GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indexData, GL_STATIC_DRAW));
-
-			//GLCall(glEnableVertexAttribArray(0));
-			//GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
-
 			return true;
 		}
 

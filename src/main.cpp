@@ -8,19 +8,8 @@
 //#include "d3d.h"
 #include "gl.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 const int WIDTH = 800;
 const int HEIGHT = 600;
-
-unsigned char* loadTexture(const char* filepath)
-{
-	int x, y, n;
-	unsigned char* data = stbi_load(filepath, &x, &y, &n, 0);
-
-	return data;
-}
 
 int main(int argc, char const* argv[])
 {
@@ -40,9 +29,6 @@ int main(int argc, char const* argv[])
 			WIDTH,
 			HEIGHT,
 			SDL_WINDOW_SHOWN |SDL_WINDOW_OPENGL /*| SDL_WINDOW_VULKAN*/);
-
-
-		loadTexture("resources/textures/mob.png");
 
 		if (window == NULL)
 		{

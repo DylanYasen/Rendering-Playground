@@ -12,6 +12,7 @@
 #include "VertexBufferLayout.h"
 #include "Shader.h"
 #include "Renderer.h"
+#include "Texture.h"
 
 void glClearError()
 {
@@ -35,6 +36,7 @@ namespace GL
 	VertexArray* va;
 	Shader* shader;
 	Renderer* renderer;
+	Texture* texture;
 
 	bool bInit = false;
 	SDL_Window* window = NULL;
@@ -129,13 +131,10 @@ namespace GL
 
 			const float vertexData[] =
 			{
-				-0.5f, -0.5f,
-				 0.5, -0.5f,
-				 0.5f, 0.5f,
-
-				 //0.5f, 0.5f,
-				-0.5f, 0.5f,
-				//-0.5f, -0.5f,
+				-0.5f, -0.5f, 0.0f, 0.0f,
+				 0.5, -0.5f, 1.0f, 0.0f,
+				 0.5f, 0.5f, 1.0f, 1.0f,
+				-0.5f, 0.5f, 0.0f, 1.0
 			};
 
 			va = new VertexArray();
@@ -144,13 +143,19 @@ namespace GL
 
 				VertexBufferLayout layout;
 				layout.Push<float>(2);
-
+				layout.Push<float>(2);
 				va->AddBuffer(vb, layout);
 			}
-			
+
 			const unsigned int indexData[] = { 0,1,2,2,3,0 };
 			ib = IndexBuffer(indexData, 6);
-				
+
+			shader = new Shader("resources/shaders/sprite.shader");
+			shader->Bind();
+			texture = new Texture("resources/textures/mob.PNG");
+			texture->Bind();
+			shader->SetUniform1i("u_texture", 0);
+
 			//GLCall(glGenBuffers(1, &VBO));
 			//GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
 			//GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), vertexData, GL_STATIC_DRAW));
@@ -168,16 +173,20 @@ namespace GL
 
 		void draw()
 		{
-			GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+			renderer->Clear();
+			renderer->Draw(*va, ib, *shader);
 		}
 	}
 
 	bool initGL()
 	{
 		renderer = new Renderer();
-		
-		return triangle::init();
-		//return rect::init();
+
+		GLCall(glEnable(GL_BLEND));
+		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+		//return triangle::init();
+		return rect::init();
 	}
 
 	void init(SDL_Window* win)
@@ -223,8 +232,8 @@ namespace GL
 		if (!bInit) return;
 
 
-		triangle::draw();
-		//rect::draw();
+		//triangle::draw();
+		rect::draw();
 
 		SDL_GL_SwapWindow(window);
 	}

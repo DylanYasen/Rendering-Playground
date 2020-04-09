@@ -4,3 +4,6 @@
 [submodule "external/src/glad"]
 	path = external/src/glad
 	url = https://github.com/Dav1dde/glad
+[submodule "external/src/stb"]
+	path = external/src/stb
+	url = https://github.com/nothings/stb

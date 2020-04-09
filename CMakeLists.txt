@@ -15,7 +15,8 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME})
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/CMakeModules)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/*.h)
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 # SDL
 set(SDL_STATIC OFF)
@@ -43,7 +44,7 @@ if(WIN32)
     target_link_libraries(${PROJECT_NAME} d3d11 D3DCompiler)
 
       # work dir for visual studio
-      set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(OutDir)")
+    #   set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(OutDir)")
 endif()
 
 # Vulkan
@@ -52,6 +53,8 @@ include_directories(${VULKAN_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} ${VULKAN_LIBRARY})
 if(WIN32)
 # post build hook for transpiling glsl to spv
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND call "$(SolutionDir)scripts/transpileGlsl.bat" "$(OutDir)shaders")
-
+# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND call "$(SolutionDir)scripts/transpileGlsl.bat" "$(OutDir)shaders")
 endif()
+
+# std headers
+include_directories(external/src/stb)

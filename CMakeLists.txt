@@ -58,3 +58,6 @@ endif()
 
 # std headers
 include_directories(external/src/stb)
+
+# handmade math headers
+include_directories(external/src/math)

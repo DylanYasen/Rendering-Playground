@@ -14,6 +14,8 @@
 #include "Renderer.h"
 #include "Texture.h"
 
+#include "HandmadeMath.h"
+
 void glClearError()
 {
 	while (glGetError() != GL_NO_ERROR);
@@ -150,8 +152,12 @@ namespace GL
 			const unsigned int indexData[] = { 0,1,2,2,3,0 };
 			ib = IndexBuffer(indexData, 6);
 
+			hmm_mat4 proj = HMM_Orthographic(-2.0f, 2.0f, -1.5f, 1.5f, 0.0f, -10.0f);
+
 			shader = new Shader("resources/shaders/sprite.shader");
 			shader->Bind();
+			shader->SetUniformMat4f("u_mvp", proj);
+
 			texture = new Texture("resources/textures/mob.PNG");
 			texture->Bind();
 			shader->SetUniform1i("u_texture", 0);

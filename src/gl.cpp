@@ -16,6 +16,9 @@
 
 #include "HandmadeMath.h"
 
+const int WIDTH = 800;
+const int HEIGHT = 600;
+
 void glClearError()
 {
 	while (glGetError() != GL_NO_ERROR);
@@ -133,10 +136,10 @@ namespace GL
 
 			const float vertexData[] =
 			{
-				-0.5f, -0.5f, 0.0f, 0.0f,
-				 0.5, -0.5f, 1.0f, 0.0f,
-				 0.5f, 0.5f, 1.0f, 1.0f,
-				-0.5f, 0.5f, 0.0f, 1.0
+				100.0f, 100.0f, 0.0f, 0.0f,
+				200.0f, 100.0f, 1.0f, 0.0f,
+				200.0f, 200.0f, 1.0f, 1.0f,
+				100.0f, 200.0f, 0.0f, 1.0f
 			};
 
 			va = new VertexArray();
@@ -152,11 +155,15 @@ namespace GL
 			const unsigned int indexData[] = { 0,1,2,2,3,0 };
 			ib = IndexBuffer(indexData, 6);
 
-			hmm_mat4 proj = HMM_Orthographic(-2.0f, 2.0f, -1.5f, 1.5f, 0.0f, -10.0f);
+			hmm_mat4 proj = HMM_Orthographic(0.0f, WIDTH, 0, HEIGHT, -10, 10);
+			hmm_mat4 view = HMM_Translate(HMM_Vec3(-100, 0, 0));
+			hmm_mat4 model = HMM_Translate(HMM_Vec3(200, 200, 0));
+
+			hmm_mat4 mvp = proj * view * model;
 
 			shader = new Shader("resources/shaders/sprite.shader");
 			shader->Bind();
-			shader->SetUniformMat4f("u_mvp", proj);
+			shader->SetUniformMat4f("u_mvp", mvp);
 
 			texture = new Texture("resources/textures/mob.PNG");
 			texture->Bind();
@@ -172,6 +179,104 @@ namespace GL
 		}
 	}
 
+	namespace cube
+	{
+		hmm_mat4 model;
+		hmm_mat4 view;
+		hmm_mat4 projection;
+
+		bool init()
+		{
+			model = HMM_Scale(HMM_Vec3(1, 1, 1)) * HMM_Rotate(30, HMM_Vec3(0, 1, 0)) * HMM_Translate(HMM_Vec3(0, 0, 0));
+			view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -5.0f));
+			projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 1000.0f);
+
+			shader = new Shader("resources/shaders/cube.shader");
+			shader->Bind();
+			shader->SetUniformMat4f("u_m", model);
+			shader->SetUniformMat4f("u_v", view);
+			shader->SetUniformMat4f("u_p", projection);
+
+			texture = new Texture("resources/textures/cube.PNG");
+			texture->Bind();
+			shader->SetUniform1i("u_tex", 0);
+
+			const float vertices[] = {
+				-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+				 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+				 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+				 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+				-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+				-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+				-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+				 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+				 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+				 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+				-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+				-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+				-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+				-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+				-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+				-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+				-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+				-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+				 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+				 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+				 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+				 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+				 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+				 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+				-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+				 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+				 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+				 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+				-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+				-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+				-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+				 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+				 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+				 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+				-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+				-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+			};
+
+			va = new VertexArray();
+			{
+				vb = VertexBuffer(vertices, sizeof(vertices));
+
+				VertexBufferLayout layout;
+				layout.Push<float>(3);
+				layout.Push<float>(2);
+				va->AddBuffer(vb, layout);
+			}
+
+			glEnable(GL_DEPTH_TEST);
+
+			return true;
+		}
+
+		void draw()
+		{
+			renderer->Clear();
+
+			va->Bind();
+			shader->Bind();
+
+			// rotate
+			{
+				model = model * HMM_Rotate(1.0f, HMM_Vec3(1, 1, 0));
+				shader->SetUniformMat4f("u_m", model);
+			}
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+	}
+
 	bool initGL()
 	{
 		renderer = new Renderer();
@@ -180,7 +285,8 @@ namespace GL
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
 		//return triangle::init();
-		return rect::init();
+		//return rect::init();
+		return cube::init();
 	}
 
 	void init(SDL_Window* win)
@@ -227,7 +333,8 @@ namespace GL
 
 
 		//triangle::draw();
-		rect::draw();
+		//rect::draw();
+		cube::draw();
 
 		SDL_GL_SwapWindow(window);
 	}

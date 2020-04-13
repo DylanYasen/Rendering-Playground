@@ -10,7 +10,7 @@ uniform mat4 u_mvp;
 
 void main()
 {
-	gl_Position = position * u_mvp;
+	gl_Position =  u_mvp * position;
 	v_texCoord = texCoord;
 }
 

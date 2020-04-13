@@ -61,3 +61,19 @@ include_directories(external/src/stb)
 
 # handmade math headers
 include_directories(external/src/math)
+
+# assimp
+# todo: figure out a way to override the destination for this shit.  ASSIMP_BIN_INSTALL_DIR is a cached var
+set(ASSIMP_BUILD_FRAMEWORK ON)
+set(ASSIMP_NO_EXPORT ON)
+set(ASSIMP_INSTALL OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_BUILD_FBX_IMPORTER ON)
+set(ASSIMP_BUILD_ZLIB ON)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+# set(ASSIMP_BIN_INSTALL_DIR  ${EXECUTABLE_OUTPUT_PATH})
+add_subdirectory(external/src/assimp)
+target_link_libraries(${PROJECT_NAME} assimp)
+
+

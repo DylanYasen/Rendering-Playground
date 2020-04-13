@@ -10,3 +10,6 @@
 [submodule "external/src/math"]
 	path = external/src/math
 	url = https://github.com/HandmadeMath/Handmade-Math
+[submodule "external/src/assimp"]
+	path = external/src/assimp
+	url = https://github.com/assimp/assimp

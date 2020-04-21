@@ -19,8 +19,8 @@ file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/*.h)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # SDL
-set(SDL_STATIC OFF)
 add_subdirectory(external/src/sdl)
+set(SDL_STATIC OFF)
 include_directories(external/src/sdl/include)
 target_link_libraries(${PROJECT_NAME} SDL2)
 
@@ -48,13 +48,16 @@ if(WIN32)
 endif()
 
 # Vulkan
-find_package(Vulkan REQUIRED)
-include_directories(${VULKAN_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${VULKAN_LIBRARY})
-if(WIN32)
-# post build hook for transpiling glsl to spv
-# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND call "$(SolutionDir)scripts/transpileGlsl.bat" "$(OutDir)shaders")
-endif()
+find_package(Vulkan)
+if(Vulkan_FOUND)
+    add_definitions(VULKAN)
+    include_directories(${VULKAN_INCLUDE_DIR})
+    target_link_libraries(${PROJECT_NAME} ${VULKAN_LIBRARY})
+    if(WIN32)
+    # post build hook for transpiling glsl to spv
+    # add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND call "$(SolutionDir)scripts/transpileGlsl.bat" "$(OutDir)shaders")
+    endif()
+endif(Vulkan_FOUND)
 
 # std headers
 include_directories(external/src/stb)
@@ -64,7 +67,6 @@ include_directories(external/src/math)
 
 # assimp
 # todo: figure out a way to override the destination for this shit.  ASSIMP_BIN_INSTALL_DIR is a cached var
-set(ASSIMP_BUILD_FRAMEWORK ON)
 set(ASSIMP_NO_EXPORT ON)
 set(ASSIMP_INSTALL OFF)
 set(ASSIMP_BUILD_TESTS OFF)

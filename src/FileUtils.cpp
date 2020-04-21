@@ -6,7 +6,7 @@
 
 Assimp::Importer importer;
 
-const aiScene* FileUtil::LoadFBX(const char* filepath)
+const aiScene* FileUtil::LoadModel(const char* filepath)
 {
 	// check if file exists
 	std::ifstream stream(filepath);
@@ -20,8 +20,7 @@ const aiScene* FileUtil::LoadFBX(const char* filepath)
 		stream.close();
 	}
 
-
-	const aiScene* scene = importer.ReadFile(filepath, aiProcessPreset_TargetRealtime_Quality);
+	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 	if (!scene)
 	{

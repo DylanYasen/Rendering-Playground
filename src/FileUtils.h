@@ -5,5 +5,5 @@
 class FileUtil
 {
 public:
-	static const aiScene* LoadFBX(const char* filepath);
+	static const aiScene* LoadModel(const char* filepath);
 };

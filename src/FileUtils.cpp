@@ -20,7 +20,7 @@ const aiScene* FileUtil::LoadModel(const char* filepath)
 		stream.close();
 	}
 
-	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcessPreset_TargetRealtime_Quality);
 
 	if (!scene)
 	{

@@ -5,7 +5,14 @@
 
 struct SDL_Window;
 
-#define ASSERT(x) if(!(x)) __debugbreak();
+#ifdef _MSC_VER
+#define DEBUG_BREAK __debugbreak();
+#else
+#define DEBUG_BREAK printf("break\n"); // todo: other platforms
+#endif
+
+
+#define ASSERT(x) if(!(x)) DEBUG_BREAK;
 #define GLCall(x) glClearError();\
 	x;\
 	ASSERT(glCheckError(#x, __FILE__, __LINE__))

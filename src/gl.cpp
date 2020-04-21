@@ -20,6 +20,7 @@
 typedef hmm_m4 mat4;
 typedef hmm_v2 vec2;
 typedef hmm_v3 vec3;
+typedef hmm_quaternion quaternion;
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -257,197 +258,283 @@ namespace GL
 		}
 	}
 
-    namespace model
-    {
-        struct Vertex
-        {
-            vec3 position;
-            vec3 normal;
-            vec2 texCoords;
-        };
-    
-        struct Mesh
-        {
-            std::vector<Vertex> vertices;
-            std::vector<unsigned int> indices;
-            std::vector<Texture*> textures;
-            
-            VertexArray* vao;
-            VertexBuffer vbo;
-            IndexBuffer ibo;
-            
-            mat4 model;
-            mat4 view;
-            mat4 projection;
-            
-            unsigned int VAO, VBO, EBO;
-            
-            Mesh(const std::vector<Vertex>& v, const std::vector<unsigned int>& i,
-                 const std::vector<Texture*>& t) : vertices(v), indices(i), textures(t)
-            {
-                model = HMM_Scale(HMM_Vec3(1,1,1)) * HMM_Rotate(-45, HMM_Vec3(1, 0, 0)) * HMM_Translate(HMM_Vec3(0, 0, 0));
-                view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -150.0f));
-                projection = HMM_Perspective(100.0f, WIDTH / HEIGHT, 0.1f, 2000.0f);
+	namespace model
+	{
+		struct Vertex
+		{
+			vec3 position;
+			vec3 normal;
+			vec2 texCoords;
+		};
 
-                shader = new Shader("resources/shaders/model.shader");
-                shader->Bind();
-                shader->SetUniformMat4f("u_m", model);
-                shader->SetUniformMat4f("u_v", view);
-                shader->SetUniformMat4f("u_p", projection);
-                
-                float stride = sizeof(Vertex);
-                vao = new VertexArray();
-                {
-                    vbo = VertexBuffer(&vertices[0], sizeof(Vertex) * vertices.size());
+		struct Transform
+		{
+			vec3 pos;
+			float rotAngle;
+			vec3 rotAxis;
+			vec3 scale;
+			quaternion rot;
 
-                    VertexBufferLayout layout;
-                    layout.Push<float>(3); // pos
-                    layout.Push<float>(3); // normal
-                    layout.Push<float>(2); // tex coords
-                    vao->AddBuffer(vbo, layout);
-                }
-                ibo = IndexBuffer(&indices[0], indices.size());
-                
-                // todo: bind textures
-            }
-            
-            void draw()
-            {
-                unsigned int diffuseNr = 1;
-                unsigned int specularNr = 1;
-                
-                // rotate
-                {
-                    model = model * HMM_Rotate(0.1f, HMM_Vec3(0, 0, 1));
-                    shader->SetUniformMat4f("u_m", model);
-                }
+			mat4 getMatrix()
+			{
+				return HMM_Scale(scale) * HMM_Rotate(rotAngle, rotAxis) * HMM_Translate(pos);
+			}
+		};
 
-                vao->Bind();
-                ibo.Bind();
-                shader->Bind();
-                renderer->Draw(*vao, ibo, *shader);
-            }
-        };
-    
-        std::unordered_set<const char*> loadedTextures;
-        std::string name = "";
-        std::vector<Mesh*> meshes;
-    
-        void loadMaterialTextures(const aiMaterial* material, aiTextureType type,
-                              const std::string& typeName, std::vector<Texture*>& outTextures)
-        {
-            for (size_t i = 0; i < material->GetTextureCount(type); i++)
-            {
-                aiString str;
-                material->GetTexture(type, i, &str);
-                
-                const char* cstr = str.C_Str();
-                if(loadedTextures.find(cstr) == loadedTextures.end())
-                {
-                    Texture* tex = new Texture(cstr, typeName.c_str());
-                    outTextures.push_back(tex);
-                    loadedTextures.insert(cstr);
-                }
-            }
-        }
-        
-        Mesh* processMesh(const aiScene* scene, const aiMesh* mesh)
-        {
-            std::vector<Vertex> vertices;
-            std::vector<unsigned int> indices;
-            std::vector<Texture*> textures;
-            
-            // vertices
-            for (size_t i = 0; i < mesh->mNumVertices; i++) {
-                Vertex vertex;
-                
-                // position
-                const aiVector3D& v = mesh->mVertices[i];
-                vertex.position = HMM_Vec3(v.x, v.y, v.z);
-                
-                // normal
-                const aiVector3D& n = mesh->mNormals[i];
-                vertex.normal = HMM_Vec3(n.x, n.y, n.z);
-                
-                // texture coordinates
-                if(mesh->mTextureCoords[0])
-                {
-                    const aiVector3D& t = mesh->mTextureCoords[0][i];
-                    vertex.texCoords = HMM_Vec2(t.x, t.y);
-                }
-                else
-                {
-                    vertex.texCoords = HMM_Vec2(0.0f, 0.0f);
-                }
-                
-                vertices.push_back(vertex);
-            }
-            
-            // indices
-            for (size_t i = 0; i < mesh->mNumFaces; i++) {
-                const aiFace& face = mesh->mFaces[i];
-                for(size_t j = 0; j < face.mNumIndices; j++)
-                {
-                    indices.push_back(face.mIndices[j]);
-                }
-            }
-            
-            // material
-            if(mesh->mMaterialIndex >= 0)
-            {
-                const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-                
-                std::vector<Texture*> outDiffuseMaps;
-                loadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse", outDiffuseMaps);
-                
-                std::vector<Texture*> outSpecularMaps;
-                loadMaterialTextures(material, aiTextureType_SPECULAR, "specular", outSpecularMaps);
-                
-                textures.insert(textures.end(), outDiffuseMaps.begin(), outDiffuseMaps.end());
-                textures.insert(textures.end(), outSpecularMaps.begin(), outSpecularMaps.end());
-            }
-            
-            Mesh* m = new Mesh(vertices, indices, textures);
-            return m;
-        }
-        
-        void processNode(const aiScene* scene, aiNode* node)
-        {
-            for (size_t i = 0; i < node->mNumMeshes; i++)
-            {
-                const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-                meshes.push_back(processMesh(scene, mesh));
-            }
-            
-            // child nodes
-            for (size_t i = 0; i < node->mNumChildren; i++) {
-                processNode(scene, node->mChildren[i]);
-            }
-        }
-       
-        bool init()
-        {
-//            std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
-//            std::string filepath = "resources/models/nanosuit/source/suit.fbx";
-            std::string filepath = "resources/models/gilnean-chapel/source/gilneas.fbx";
-            const aiScene* scene = FileUtil::LoadModel(filepath.c_str());
-            name = filepath.substr(0, filepath.find_last_of('/'));
-            if(scene) processNode(scene, scene->mRootNode);
-            
-            GLCall(glEnable(GL_DEPTH_TEST));
-            
-            return true;
-        }
-    
-        void draw()
-        {
-            GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-            
-            for (auto mesh : meshes) {
-                mesh->draw();
-            }
-        }
-    }
+		struct Mesh
+		{
+			std::vector<Vertex> vertices;
+			std::vector<unsigned int> indices;
+			std::vector<Texture*> textures;
+			Transform transform;
+			const char* name;
+
+			VertexArray* vao;
+			VertexBuffer vbo;
+			IndexBuffer ibo;
+
+			mat4 model;
+			mat4 view;
+			mat4 projection;
+
+			unsigned int VAO, VBO, EBO;
+
+			Mesh(const std::vector<Vertex>& v, const std::vector<unsigned int>& i,
+				const std::vector<Texture*>& t, Transform trans, const char* name)
+				: vertices(v), indices(i), textures(t), transform(trans), name(name)
+			{
+				//model = HMM_Scale(HMM_Vec3(1, 1, 1)) * HMM_Rotate(0, HMM_Vec3(1, 0, 0)) * HMM_Translate(HMM_Vec3(0, 0, 0));
+				model = transform.getMatrix();
+				view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -200));
+				projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 1000.0f);
+
+				shader = new Shader("resources/shaders/model.shader");
+
+				float stride = sizeof(Vertex);
+				vao = new VertexArray();
+				{
+					vbo = VertexBuffer(&vertices[0], sizeof(Vertex) * vertices.size());
+
+					VertexBufferLayout layout;
+					layout.Push<float>(3); // pos
+					layout.Push<float>(3); // normal
+					layout.Push<float>(2); // tex coords
+					vao->AddBuffer(vbo, layout);
+				}
+				ibo = IndexBuffer(&indices[0], indices.size());
+			}
+
+			void draw(mat4 parentTransform)
+			{
+				unsigned int diffuseNr = 1;
+				unsigned int specularNr = 1;
+
+				vao->Bind();
+				ibo.Bind();
+				shader->Bind();
+
+				/*for (size_t i = 0; i < textures.size(); i++)
+				{
+					std::string uniformName = "u_tex" + std::to_string(i);
+					textures[i]->Bind();
+					shader->SetUniform1i(uniformName, 0);
+				}*/
+				if (textures.size() > 0)
+				{
+					textures[0]->Bind();
+					shader->SetUniform1i("u_tex", 0);
+				}
+
+				shader->SetUniformMat4f("u_m", parentTransform * model);
+				shader->SetUniformMat4f("u_v", view);
+				shader->SetUniformMat4f("u_p", projection);
+				renderer->Draw(*vao, ibo, *shader);
+			}
+		};
+
+		std::unordered_set<const char*> loadedTextures;
+		std::string name = "";
+		std::string rootpath = "";
+		std::vector<Mesh*> meshes;
+		Transform transform;
+
+		void loadMaterialTextures(const aiMaterial* material, aiTextureType type,
+			const std::string& typeName, std::vector<Texture*>& outTextures)
+		{
+			for (size_t i = 0; i < material->GetTextureCount(type); i++)
+			{
+				aiString str;
+				material->GetTexture(type, i, &str);
+
+				std::string matName = str.C_Str();
+
+				// fix messed up filepath
+				// expect textures are in the same folder as the model
+				{
+					size_t lastSlashPos = matName.find_last_of('\\');
+					if (lastSlashPos != std::string::npos)
+					{
+						matName = matName.substr(lastSlashPos + 1);
+					}
+				}
+				{
+					size_t lastSlashPos = matName.find_last_of('/');
+					if (lastSlashPos != std::string::npos)
+					{
+						matName = matName.substr(lastSlashPos + 1);
+					}
+				}
+				
+				// prepend model root path
+				aiString fullpath(rootpath);
+				fullpath.Append(matName.c_str());
+				const char* cstr = fullpath.C_Str();
+
+				if (loadedTextures.find(cstr) == loadedTextures.end())
+				{
+					Texture* tex = new Texture(cstr, typeName.c_str());
+					outTextures.push_back(tex);
+					loadedTextures.insert(cstr);
+				}
+			}
+		}
+
+		Mesh* processMesh(const aiScene* scene, const aiMatrix4x4& transformation, const aiMesh* mesh)
+		{
+			std::vector<Vertex> vertices;
+			std::vector<unsigned int> indices;
+			std::vector<Texture*> textures;
+
+			Transform transform;
+			{
+				aiVector3D t, s, rotAxis;
+				ai_real rotAngle;
+				transformation.Decompose(s, rotAxis, rotAngle, t);
+
+		/*		aiQuaternion rot;
+				node->mTransformation.Decompose(s, rot, t);
+		*/
+				transform.pos = HMM_Vec3(t.x, t.y, t.z);
+				transform.scale = HMM_Vec3(s.x, s.y, s.z);
+				transform.rotAngle = rotAngle;
+				transform.rotAxis = HMM_Vec3(rotAxis.x, rotAxis.y, rotAxis.z);
+			}
+
+			// vertices
+			for (size_t i = 0; i < mesh->mNumVertices; i++) {
+				Vertex vertex;
+
+				// position
+				const aiVector3D& v = mesh->mVertices[i];
+				vertex.position = HMM_Vec3(v.x, v.y, v.z);
+
+				// normal
+				const aiVector3D& n = mesh->mNormals[i];
+				vertex.normal = HMM_Vec3(n.x, n.y, n.z);
+
+				// texture coordinates
+				if (mesh->mTextureCoords[0])
+				{
+					const aiVector3D& t = mesh->mTextureCoords[0][i];
+					vertex.texCoords = HMM_Vec2(t.x, t.y);
+				}
+				else
+				{
+					vertex.texCoords = HMM_Vec2(0.0f, 0.0f);
+				}
+
+				vertices.push_back(vertex);
+			}
+
+			// indices
+			for (size_t i = 0; i < mesh->mNumFaces; i++) {
+				const aiFace& face = mesh->mFaces[i];
+				for (size_t j = 0; j < face.mNumIndices; j++)
+				{
+					indices.push_back(face.mIndices[j]);
+				}
+			}
+
+			// material
+			if (mesh->mMaterialIndex >= 0)
+			{
+				const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+				std::vector<Texture*> outDiffuseMaps;
+				loadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse", outDiffuseMaps);
+				textures.insert(textures.end(), outDiffuseMaps.begin(), outDiffuseMaps.end());
+
+				std::vector<Texture*> outSpecularMaps;
+				loadMaterialTextures(material, aiTextureType_SPECULAR, "specular", outSpecularMaps);
+				textures.insert(textures.end(), outSpecularMaps.begin(), outSpecularMaps.end());
+
+				std::vector<Texture*> outNormalMaps;
+				loadMaterialTextures(material, aiTextureType_NORMALS, "normal", outNormalMaps);
+				textures.insert(textures.end(), outNormalMaps.begin(), outNormalMaps.end());
+
+				std::vector<Texture*> outHeightMaps;
+				loadMaterialTextures(material, aiTextureType_HEIGHT, "height", outHeightMaps);
+				textures.insert(textures.end(), outHeightMaps.begin(), outHeightMaps.end());
+			}
+
+			Mesh* m = new Mesh(vertices, indices, textures, transform, mesh->mName.C_Str());
+			return m;
+		}
+
+		void processNode(const aiScene* scene, aiNode* node, const aiMatrix4x4& t)
+		{
+			const aiMatrix4x4& transform = t * node->mTransformation ;
+			for (size_t i = 0; i < node->mNumMeshes; i++)
+			{
+				const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+				meshes.push_back(processMesh(scene, transform, mesh));
+			}
+
+			// child nodes
+			for (size_t i = 0; i < node->mNumChildren; i++) {
+				processNode(scene, node->mChildren[i], transform);
+			}
+		}
+
+		bool init()
+		{
+			//            std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
+			//            std::string filepath = "resources/models/nanosuit/source/suit.fbx";
+			//std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
+			//std::string filepath = "resources/models/junkrat/junkrat.fbx";
+			std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
+
+			const aiScene* scene = FileUtil::LoadModel(filepath.c_str());
+			const size_t lastSlashPos = filepath.find_last_of('/');
+			rootpath = filepath.substr(0, lastSlashPos + 1);
+			name = filepath.substr(lastSlashPos + 1);
+			if (scene) processNode(scene, scene->mRootNode, aiMatrix4x4());
+
+			GLCall(glEnable(GL_DEPTH_TEST));
+			//GLCall(glClearColor(1.f, 1.f, 1.f, 1.f));
+
+			transform.pos = HMM_Vec3(0, 0, -75);
+			transform.scale = HMM_Vec3(1,1,1);
+			// adjust axis
+			transform.rotAngle = -45;
+			transform.rotAxis = HMM_Vec3(1, 0, 0);
+
+			return true;
+		}
+
+		float angle = 0;
+
+		void draw()
+		{
+			renderer->Clear();
+
+			angle += 0.5f;
+			const auto& mat = transform.getMatrix() * HMM_Rotate(angle, HMM_Vec3(0, 0, 1));
+ 			for (auto mesh : meshes) {
+				mesh->draw(mat);
+			}
+		}
+	}
 
 	bool initGL()
 	{
@@ -459,7 +546,7 @@ namespace GL
 		//return triangle::init();
 		//return rect::init();
 //		return cube::init();
-        return model::init();
+		return model::init();
 	}
 
 	void init(SDL_Window* win)
@@ -467,8 +554,8 @@ namespace GL
 		if (!win) return;
 		window = win;
 
-        SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
-        
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
 		SDL_GLContext context = SDL_GL_CreateContext(window);
 		if (context == NULL)
 		{
@@ -480,7 +567,7 @@ namespace GL
 		{
 			printf("gladLoadGL failed");
 			return;
-		}        
+		}
 
 		printf("Vendor:   %s\n", glGetString(GL_VENDOR));
 		printf("Renderer: %s\n", glGetString(GL_RENDERER));
@@ -510,7 +597,7 @@ namespace GL
 		//triangle::draw();
 		//rect::draw();
 //		cube::draw();
-        model::draw();
+		model::draw();
 
 		SDL_GL_SwapWindow(window);
 	}

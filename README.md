@@ -1,5 +1,8 @@
 # Rendering-Playground
 
+## Textured Model (unlit with baked lights)
+<img src="https://raw.githubusercontent.com/DylanYasen/Rendering-Playground/master/images/textured_model.gif" width="60%" height="60%">
+
 ## Cube
 <img src="https://raw.githubusercontent.com/DylanYasen/Rendering-Playground/master/images/cube.gif" width="60%" height="60%">
 

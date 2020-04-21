@@ -2,7 +2,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <malloc.h>
 #include <sstream>
 
 #include "gl.h"
@@ -46,31 +45,6 @@ namespace GL
 	bool bInit = false;
 	SDL_Window* window = NULL;
 	int location = -1;
-
-	namespace utils
-	{
-		void printShaderLog(unsigned int shader)
-		{
-			if (glIsShader(shader))
-			{
-				int infoLogLength = 0;
-				int maxLength = infoLogLength;
-
-				GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength));
-
-				char* infoLog = (char*)_malloca(maxLength * sizeof(char));
-				GLCall(glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog));
-				if (infoLogLength > 0)
-				{
-					printf("%s\n", infoLog);
-				}
-			}
-			else
-			{
-				printf("Name %d is not a shader\n", shader);
-			}
-		}
-	}
 
 	namespace triangle
 	{
@@ -294,6 +268,8 @@ namespace GL
 		if (!win) return;
 		window = win;
 
+        SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+        
 		SDL_GLContext context = SDL_GL_CreateContext(window);
 		if (context == NULL)
 		{
@@ -305,7 +281,7 @@ namespace GL
 		{
 			printf("gladLoadGL failed");
 			return;
-		}
+		}        
 
 		printf("Vendor:   %s\n", glGetString(GL_VENDOR));
 		printf("Renderer: %s\n", glGetString(GL_RENDERER));

@@ -5,12 +5,13 @@ class Texture
 private:
 	unsigned int rendererID;
 	const char* filepath;
-	unsigned char* buffer;
+	const char* type;
+    unsigned char* buffer;
 	int width, height;
 	int bpp;  // bits per pixel
 
 public:
-	Texture(const char* path);
+	Texture(const char* path, const char* type = "raw");
 	~Texture();
 
 	void Bind(unsigned int slot = 0) const;

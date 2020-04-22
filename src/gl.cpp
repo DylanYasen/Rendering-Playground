@@ -274,10 +274,22 @@ namespace GL
 			vec3 rotAxis;
 			vec3 scale;
 			quaternion rot;
+			mat4 parentTransform;
+
+			Transform() : pos(HMM_Vec3(0, 0, 0)),  rotAngle(0),
+				rotAxis(HMM_Vec3(0,0,0)), scale(HMM_Vec3(1, 1, 1)), 
+				rot(HMM_Quaternion(0,0,0,0)), parentTransform(HMM_Mat4d(1))
+			{
+			}
 
 			mat4 getMatrix()
 			{
 				return HMM_Scale(scale) * HMM_Rotate(rotAngle, rotAxis) * HMM_Translate(pos);
+			}
+
+			mat4 getWorldMatrix()
+			{
+				return parentTransform * getMatrix();
 			}
 		};
 
@@ -304,7 +316,7 @@ namespace GL
 				: vertices(v), indices(i), textures(t), transform(trans), name(name)
 			{
 				//model = HMM_Scale(HMM_Vec3(1, 1, 1)) * HMM_Rotate(0, HMM_Vec3(1, 0, 0)) * HMM_Translate(HMM_Vec3(0, 0, 0));
-				model = transform.getMatrix();
+				model = transform.getWorldMatrix();
 				view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -200));
 				projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 1000.0f);
 
@@ -324,7 +336,7 @@ namespace GL
 				ibo = IndexBuffer(&indices[0], indices.size());
 			}
 
-			void draw(mat4 parentTransform)
+			void draw(const mat4& parentTransform)
 			{
 				unsigned int diffuseNr = 1;
 				unsigned int specularNr = 1;
@@ -345,7 +357,8 @@ namespace GL
 					shader->SetUniform1i("u_tex", 0);
 				}
 
-				shader->SetUniformMat4f("u_m", parentTransform * model);
+				model = transform.getWorldMatrix();
+				shader->SetUniformMat4f("u_m",  parentTransform * model);
 				shader->SetUniformMat4f("u_v", view);
 				shader->SetUniformMat4f("u_p", projection);
 				renderer->Draw(*vao, ibo, *shader);
@@ -399,7 +412,7 @@ namespace GL
 			}
 		}
 
-		Mesh* processMesh(const aiScene* scene, const aiMatrix4x4& transformation, const aiMesh* mesh)
+		Mesh* processMesh(const aiScene* scene, aiNode* node, const mat4& parentTransform, const aiMesh* mesh)
 		{
 			std::vector<Vertex> vertices;
 			std::vector<unsigned int> indices;
@@ -409,7 +422,9 @@ namespace GL
 			{
 				aiVector3D t, s, rotAxis;
 				ai_real rotAngle;
-				transformation.Decompose(s, rotAxis, rotAngle, t);
+
+				const auto& nodeTransform = node->mTransformation;
+				nodeTransform.Decompose(s, rotAxis, rotAngle, t);
 
 		/*		aiQuaternion rot;
 				node->mTransformation.Decompose(s, rot, t);
@@ -418,6 +433,8 @@ namespace GL
 				transform.scale = HMM_Vec3(s.x, s.y, s.z);
 				transform.rotAngle = rotAngle;
 				transform.rotAxis = HMM_Vec3(rotAxis.x, rotAxis.y, rotAxis.z);
+				
+				transform.parentTransform = parentTransform;
 			}
 
 			// vertices
@@ -481,18 +498,47 @@ namespace GL
 			return m;
 		}
 
-		void processNode(const aiScene* scene, aiNode* node, const aiMatrix4x4& t)
+		mat4 aiMat4toMat4(const aiMatrix4x4& aimat4)
 		{
-			const aiMatrix4x4& transform = t * node->mTransformation ;
+			mat4 result;
+
+			result.Elements[0][0] = aimat4.a1;
+			result.Elements[0][1] = aimat4.b1;
+			result.Elements[0][2] = aimat4.c1;
+			result.Elements[0][3] = aimat4.d1;
+
+			result.Elements[1][0] = aimat4.a2;
+			result.Elements[1][1] = aimat4.b2;
+			result.Elements[1][2] = aimat4.c2;
+			result.Elements[1][3] = aimat4.d2;
+
+			result.Elements[2][0] = aimat4.a3;
+			result.Elements[2][1] = aimat4.b3;
+			result.Elements[2][2] = aimat4.c3;
+			result.Elements[2][3] = aimat4.d3;
+
+			result.Elements[3][0] = aimat4.a4;
+			result.Elements[3][1] = aimat4.b4;
+			result.Elements[3][2] = aimat4.c4;
+			result.Elements[3][3] = aimat4.d4;
+
+			return result;
+		}
+
+		void processNode(const aiScene* scene, aiNode* node, const mat4& parentTransform)
+		{
+			const mat4 transform = aiMat4toMat4(node->mTransformation);
+			const mat4& accParentTransform = parentTransform * transform;
+			
 			for (size_t i = 0; i < node->mNumMeshes; i++)
 			{
 				const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-				meshes.push_back(processMesh(scene, transform, mesh));
+				meshes.push_back(processMesh(scene, node, accParentTransform, mesh));
 			}
 
 			// child nodes
 			for (size_t i = 0; i < node->mNumChildren; i++) {
-				processNode(scene, node->mChildren[i], transform);
+				processNode(scene, node->mChildren[i], accParentTransform);
 			}
 		}
 
@@ -500,23 +546,23 @@ namespace GL
 		{
 			//            std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
 			//            std::string filepath = "resources/models/nanosuit/source/suit.fbx";
-			//std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
+			std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
 			//std::string filepath = "resources/models/junkrat/junkrat.fbx";
-			std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
+			//std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
 
 			const aiScene* scene = FileUtil::LoadModel(filepath.c_str());
 			const size_t lastSlashPos = filepath.find_last_of('/');
 			rootpath = filepath.substr(0, lastSlashPos + 1);
 			name = filepath.substr(lastSlashPos + 1);
-			if (scene) processNode(scene, scene->mRootNode, aiMatrix4x4());
+			if (scene) processNode(scene, scene->mRootNode, HMM_Mat4d(1));
 
 			GLCall(glEnable(GL_DEPTH_TEST));
 			//GLCall(glClearColor(1.f, 1.f, 1.f, 1.f));
 
-			transform.pos = HMM_Vec3(0, 0, -75);
-			transform.scale = HMM_Vec3(1,1,1);
+			transform.pos = HMM_Vec3(0, 0, 0);
+			transform.scale = HMM_Vec3(1, 1, 1);
 			// adjust axis
-			transform.rotAngle = -45;
+			transform.rotAngle = 45;
 			transform.rotAxis = HMM_Vec3(1, 0, 0);
 
 			return true;
@@ -529,7 +575,7 @@ namespace GL
 			renderer->Clear();
 
 			angle += 0.5f;
-			const auto& mat = transform.getMatrix() * HMM_Rotate(angle, HMM_Vec3(0, 0, 1));
+			const auto& mat = transform.getMatrix() * HMM_Rotate(angle, HMM_Vec3(0, 1,0));
  			for (auto mesh : meshes) {
 				mesh->draw(mat);
 			}

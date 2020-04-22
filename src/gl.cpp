@@ -317,8 +317,8 @@ namespace GL
 			{
 				//model = HMM_Scale(HMM_Vec3(1, 1, 1)) * HMM_Rotate(0, HMM_Vec3(1, 0, 0)) * HMM_Translate(HMM_Vec3(0, 0, 0));
 				model = transform.getWorldMatrix();
-				view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -200));
-				projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 1000.0f);
+				view = HMM_Rotate(30, HMM_Vec3(1, 0, 0)) * HMM_Translate(HMM_Vec3(0.0f, -800.0f, -800.f));
+				projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 2000.0f);
 
 				shader = new Shader("resources/shaders/model.shader");
 
@@ -527,7 +527,7 @@ namespace GL
 
 		void processNode(const aiScene* scene, aiNode* node, const mat4& parentTransform)
 		{
-			const mat4 transform = aiMat4toMat4(node->mTransformation);
+			const mat4& transform = aiMat4toMat4(node->mTransformation);
 			const mat4& accParentTransform = parentTransform * transform;
 			
 			for (size_t i = 0; i < node->mNumMeshes; i++)
@@ -546,8 +546,8 @@ namespace GL
 		{
 			//            std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
 			//            std::string filepath = "resources/models/nanosuit/source/suit.fbx";
-			std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
-			//std::string filepath = "resources/models/junkrat/junkrat.fbx";
+			//std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
+			std::string filepath = "resources/models/junkrat/junkrat.fbx";
 			//std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
 
 			const aiScene* scene = FileUtil::LoadModel(filepath.c_str());
@@ -558,12 +558,6 @@ namespace GL
 
 			GLCall(glEnable(GL_DEPTH_TEST));
 			//GLCall(glClearColor(1.f, 1.f, 1.f, 1.f));
-
-			transform.pos = HMM_Vec3(0, 0, 0);
-			transform.scale = HMM_Vec3(1, 1, 1);
-			// adjust axis
-			transform.rotAngle = 45;
-			transform.rotAxis = HMM_Vec3(1, 0, 0);
 
 			return true;
 		}

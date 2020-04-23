@@ -2,12 +2,12 @@
 #include "gl.h"
 #include "stb_image.h"
 
-Texture::Texture(const char* path, const char* type)
-	:rendererID(0), filepath(path), buffer(nullptr),
-	width(0), height(0), bpp(0), type(type)
+Texture::Texture(const std::string& path, const std::string& textureType)
+	:rendererID(0), filepath(path), type(textureType),
+	buffer(nullptr), width(0), height(0), bpp(0)
 {
 	stbi_set_flip_vertically_on_load(1);
-	buffer = stbi_load(path, &width, &height, &bpp, 4);
+	buffer = stbi_load(filepath.c_str(), &width, &height, &bpp, 4);
 
 	GLCall(glGenTextures(1, &rendererID));
 	GLCall(glBindTexture(GL_TEXTURE_2D, rendererID));
@@ -21,13 +21,18 @@ Texture::Texture(const char* path, const char* type)
 	GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 
+	for (size_t i = 0; i < type.length(); ++i)
+		type[i] = tolower(type[i]);
+	materialTypeName = "material." + type;
+
 	if (buffer)
 	{
+		printf("loaded [%s] texture: [%s] \n", textureType.c_str(), filepath.c_str());
 		stbi_image_free(buffer);
 	}
 	else
 	{
-		printf("failed to load texture: %s\n", path);
+		printf("failed to load texture: %s\n", filepath.c_str());
 	}
 }
 

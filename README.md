@@ -1,5 +1,9 @@
 # Rendering-Playground
 
+
+## Material & Lightmaps
+<img src="https://raw.githubusercontent.com/DylanYasen/Rendering-Playground/master/images/lightmap.gif" width="60%" height="60%">
+
 ## Transform Hierarchy
 <img src="https://raw.githubusercontent.com/DylanYasen/Rendering-Playground/master/images/transform.gif" width="60%" height="60%">
 

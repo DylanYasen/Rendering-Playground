@@ -12,7 +12,7 @@ const aiScene* FileUtil::LoadModel(const char* filepath)
 	std::ifstream stream(filepath);
 	if (stream.fail())
 	{
-		printf("failed to import %.15s, file doesn't exist\n", filepath);
+		printf("[LoadModel]:failed to import %.15s, file doesn't exist\n", filepath);
 		return NULL;
 	}
 	else
@@ -20,7 +20,7 @@ const aiScene* FileUtil::LoadModel(const char* filepath)
 		stream.close();
 	}
 
-	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcessPreset_TargetRealtime_Quality);
+	const aiScene* scene = importer.ReadFile(filepath, aiProcessPreset_TargetRealtime_Quality);
 
 	if (!scene)
 	{

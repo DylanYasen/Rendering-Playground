@@ -24,7 +24,7 @@ static void printShaderLog(unsigned int shader)
 
 		GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength));
 
-		char* infoLog = (char*)_malloca(maxLength * sizeof(char));
+		char* infoLog = (char*)malloc(maxLength * sizeof(char));
 		GLCall(glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog));
 		if (infoLogLength > 0)
 		{
@@ -136,12 +136,13 @@ void Shader::PrintShaderLog(unsigned int shader)
 
 		GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength));
 
-		char* infoLog = (char*)_malloca(maxLength * sizeof(char));
+        char* infoLog = (char*)malloc(maxLength * sizeof(char));
 		GLCall(glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog));
 		if (infoLogLength > 0)
 		{
 			printf("%s\n", infoLog);
 		}
+        delete infoLog;
 	}
 	else
 	{

@@ -353,8 +353,15 @@ MigrationBackup/
 .ionide/
 
 CMakeFiles
+CMakeScripts
 
 *.vcxproj
 *.vcxproj.filters
 CMakeCache.txt
 *.sln
+*.DS_STORE
+*.xcodeproj
+
+*.cmake
+
+

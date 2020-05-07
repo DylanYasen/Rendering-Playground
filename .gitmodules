@@ -13,3 +13,6 @@
 [submodule "external/src/assimp"]
 	path = external/src/assimp
 	url = https://github.com/assimp/assimp
+[submodule "external/src/imgui"]
+	path = external/src/imgui
+	url = https://github.com/ocornut/imgui.git

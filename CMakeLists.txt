@@ -37,10 +37,15 @@ set(SOURCES
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
    ${PROJECT_SOURCE_DIR}/external/handmade_math.cpp
 
-   ${PROJECT_SOURCE_DIR}/main.cpp
+   external/src/imgui/imgui.cpp
+   external/src/imgui/imgui_draw.cpp
+   external/src/imgui/imgui_widgets.cpp
+   external/src/imgui/examples/imgui_impl_opengl3.cpp
+   external/src/imgui/examples/imgui_impl_sdl.cpp
+   
+   ${PROJECT_SOURCE_DIR}/main.cpp   
 )
 
-# file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/*.h)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # SDL
@@ -104,3 +109,6 @@ add_subdirectory(external/src/assimp)
 target_link_libraries(${PROJECT_NAME} assimp)
 
 
+# imgui
+include_directories(external/src/imgui)
+include_directories(external/src/imgui/examples)

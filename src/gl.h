@@ -24,4 +24,6 @@ namespace GL
 {
 	void init(SDL_Window* win);
 	void render();
+
+    void processInput(const SDL_Event& e);
 }

@@ -15,6 +15,13 @@
 #include "Texture.h"
 #include "FileUtils.h"
 
+// imgui
+
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_opengl3.h"
+
+
 // todo: move these typedefs to math header
 #include "HandmadeMath.h"
 typedef hmm_m4 mat4;
@@ -658,6 +665,14 @@ namespace GL
 			for (auto mesh : meshes) {
 				mesh->draw(mat);
 			}
+            
+            // debug menu
+            {
+                ImGui::Begin("debug", 0, ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::InputFloat3("view pos", viewpos.Elements);
+                ImGui::InputFloat3("light pos", lightpos.Elements);
+                ImGui::End();
+            }
 		}
 	}
 
@@ -667,7 +682,7 @@ namespace GL
 
 		GLCall(glEnable(GL_BLEND));
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
+  
 		//return triangle::init();
 		//return rect::init();
 //		return cube::init();
@@ -679,7 +694,22 @@ namespace GL
 		if (!win) return;
 		window = win;
 
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        // Decide GL+GLSL versions
+        #if __APPLE__
+            // GL 3.2 Core + GLSL 150
+            const char* glsl_version = "#version 150";
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+        #else
+            // GL 3.0 + GLSL 130
+            const char* glsl_version = "#version 130";
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        #endif
 
 		SDL_GLContext context = SDL_GL_CreateContext(window);
 		if (context == NULL)
@@ -703,6 +733,15 @@ namespace GL
 		{
 			printf("Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
 		}
+        
+        // init imgui
+        {
+          IMGUI_CHECKVERSION();
+          ImGui::CreateContext();
+          ImGui::StyleColorsDark();
+          ImGui_ImplSDL2_InitForOpenGL(window, context);
+          ImGui_ImplOpenGL3_Init(glsl_version);
+        }
 
 		if (!initGL())
 		{
@@ -718,12 +757,26 @@ namespace GL
 	{
 		if (!bInit) return;
 
-
-		//triangle::draw();
-		//rect::draw();
-//		cube::draw();
+        // imgui
+        {
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplSDL2_NewFrame(window);
+            ImGui::NewFrame();
+        }
+        
 		model::draw();
-
+         
+        // imgui
+        {
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
+        
 		SDL_GL_SwapWindow(window);
 	}
+
+    void processInput(const SDL_Event& e)
+    {
+        ImGui_ImplSDL2_ProcessEvent(&e);
+    }
 }

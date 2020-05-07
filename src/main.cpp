@@ -49,6 +49,7 @@ int main(int argc, char const* argv[])
 			{
 				while (SDL_PollEvent(&e) != 0)
 				{
+                    GL::processInput(e);
 					if (e.type == SDL_QUIT)
 					{
 						bRunning = false;

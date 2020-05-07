@@ -15,7 +15,32 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME})
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/CMakeModules)
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/*.h)
+set(SOURCES
+   ${PROJECT_SOURCE_DIR}/FileUtils.h
+   ${PROJECT_SOURCE_DIR}/FileUtils.cpp
+   ${PROJECT_SOURCE_DIR}/gl.cpp
+   ${PROJECT_SOURCE_DIR}/gl.h
+   ${PROJECT_SOURCE_DIR}/IndexBuffer.h
+   ${PROJECT_SOURCE_DIR}/IndexBuffer.cpp
+   ${PROJECT_SOURCE_DIR}/Shader.h
+   ${PROJECT_SOURCE_DIR}/Shader.cpp
+   ${PROJECT_SOURCE_DIR}/Texture.h
+   ${PROJECT_SOURCE_DIR}/Texture.cpp
+   ${PROJECT_SOURCE_DIR}/VertexBufferLayout.h
+   ${PROJECT_SOURCE_DIR}/VertexArray.h
+   ${PROJECT_SOURCE_DIR}/VertexArray.cpp
+   ${PROJECT_SOURCE_DIR}/VertexBuffer.h
+   ${PROJECT_SOURCE_DIR}/VertexBuffer.cpp
+   ${PROJECT_SOURCE_DIR}/Renderer.h
+   ${PROJECT_SOURCE_DIR}/Renderer.cpp
+
+   ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
+   ${PROJECT_SOURCE_DIR}/external/handmade_math.cpp
+
+   ${PROJECT_SOURCE_DIR}/main.cpp
+)
+
+# file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/*.h)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # SDL

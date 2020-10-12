@@ -21,13 +21,7 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 
-
-// todo: move these typedefs to math header
-#include "HandmadeMath.h"
-typedef hmm_m4 mat4;
-typedef hmm_v2 vec2;
-typedef hmm_v3 vec3;
-typedef hmm_quaternion quaternion;
+#include "math.h"
 
 const int WIDTH = 1024;
 const int HEIGHT = 768;

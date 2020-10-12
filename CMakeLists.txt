@@ -20,6 +20,7 @@ set(SOURCES
    ${PROJECT_SOURCE_DIR}/FileUtils.cpp
    ${PROJECT_SOURCE_DIR}/gl.cpp
    ${PROJECT_SOURCE_DIR}/gl.h
+   ${PROJECT_SOURCE_DIR}/math.h
    ${PROJECT_SOURCE_DIR}/IndexBuffer.h
    ${PROJECT_SOURCE_DIR}/IndexBuffer.cpp
    ${PROJECT_SOURCE_DIR}/Shader.h

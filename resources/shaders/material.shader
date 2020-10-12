@@ -7,8 +7,7 @@ layout(location = 3) in vec3 bitangent;
 layout(location = 4) in vec2 texCoord;
 
 uniform mat4 u_m;
-uniform mat4 u_v;
-uniform mat4 u_p;
+uniform mat4 u_mvp;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -36,7 +35,7 @@ void main()
     vs_out.tangentViewPos  = TBN * viewPos;
     vs_out.tangentWorldPos = TBN * vs_out.worldPos;
 
-	gl_Position = u_p * u_v * u_m * vec4(pos, 1.0f);
+	gl_Position = u_mvp * vec4(pos, 1.0f);
 }
 
 #shader fragment

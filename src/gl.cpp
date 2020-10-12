@@ -21,7 +21,8 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 
-#include "math.h"
+#include "Math.h"
+#include "Camera.h"
 
 const int WIDTH = 1024;
 const int HEIGHT = 768;
@@ -173,7 +174,7 @@ namespace GL
 		bool init()
 		{
 			model = HMM_Scale(HMM_Vec3(1, 1, 1)) * HMM_Rotate(30, HMM_Vec3(0, 1, 0)) * HMM_Translate(HMM_Vec3(0, 0, 0));
-			view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -5.0f));
+			view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -5.0f));		
 			projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 1000.0f);
 
 			shader = new Shader("resources/shaders/cube.shader");
@@ -279,7 +280,7 @@ namespace GL
 			float rotAngle;
 			vec3 rotAxis;
 			vec3 scale;
-			quaternion rot;
+			quat rot;
 			mat4 parentTransform;
 
 			Transform() : pos(HMM_Vec3(0, 0, 0)), rotAngle(0),
@@ -299,6 +300,8 @@ namespace GL
 			}
 		};
 
+		Camera* camera = nullptr;
+
 		struct Mesh
 		{
 			std::vector<Vertex> vertices;
@@ -312,8 +315,6 @@ namespace GL
 			IndexBuffer ibo;
 
 			mat4 model;
-			mat4 view;
-			mat4 projection;
 
 			unsigned int VAO, VBO, EBO;
 
@@ -321,12 +322,8 @@ namespace GL
 				const std::vector<Texture*>& t, Transform trans, const char* name)
 				: vertices(v), indices(i), textures(t), transform(trans), name(name)
 			{
-				//model = HMM_Scale(HMM_Vec3(1, 1, 1)) * HMM_Rotate(0, HMM_Vec3(1, 0, 0)) * HMM_Translate(HMM_Vec3(0, 0, 0));
 				model = transform.getWorldMatrix();
-				view = HMM_Rotate(30, HMM_Vec3(1, 0, 0)) * HMM_Translate(viewpos);
-				projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 2000.0f);
-
-				float stride = sizeof(Vertex);
+			
 				vao = new VertexArray();
 				{
 					vbo = VertexBuffer(&vertices[0], sizeof(Vertex) * vertices.size());
@@ -358,9 +355,12 @@ namespace GL
 				}
 
 				model = transform.getWorldMatrix();
-				shader->SetUniformMat4f("u_m", parentTransform * model);
-				shader->SetUniformMat4f("u_v", view);
-				shader->SetUniformMat4f("u_p", projection);
+                
+				const mat4& mvp = camera->GetProjectionMatrix() * camera->GetViewMatrix() * model;
+				// todo: move TBN calculation to cpu and clean up this uniform
+				shader->SetUniformMat4f("u_m", model);
+
+				shader->SetUniformMat4f("u_mvp", mvp);
 				renderer->Draw(*vao, ibo, *shader);
 			}
 		};
@@ -595,16 +595,18 @@ namespace GL
 
 		bool init()
 		{
-			//            std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
-			//            std::string filepath = "resources/models/nanosuit/source/suit.fbx";
-			//std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
-			std::string filepath = "resources/models/junkrat/junkrat.fbx";
-			//std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
+			// std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
+			// std::string filepath = "resources/models/nanosuit/source/suit.fbx";
+			std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
+			// std::string filepath = "resources/models/junkrat/junkrat.fbx";
+			// std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
 
 			const aiScene* scene = FileUtil::LoadModel(filepath.c_str());
-			const size_t lastSlashPos = filepath.find_last_of('/');
-			rootpath = filepath.substr(0, lastSlashPos + 1);
-			name = filepath.substr(lastSlashPos + 1);
+			{
+				const size_t lastSlashPos = filepath.find_last_of('/');
+				rootpath = filepath.substr(0, lastSlashPos + 1);
+				name = filepath.substr(lastSlashPos + 1);
+			}
 			if (scene) processNode(scene, scene->mRootNode, HMM_Mat4d(1));
 
 			shader = new Shader("resources/shaders/material.shader");
@@ -619,10 +621,16 @@ namespace GL
 
 			// junkrat material
 			{
-				transform.rotAngle = -90;
-				transform.rotAxis = HMM_Vec3(1,0,0);
-				shader->SetUniform1f("material.shininess", 32.0f);
+				//  transform.rotAngle = -90;
+				//  transform.rotAxis = HMM_Vec3(1,0,0);
+				//  shader->SetUniform1f("material.shininess", 32.0f);
 			}
+
+			vec3 eyepos = HMM_Vec3(0.0f, 300.0f, 300.0f);
+			vec3 targetpos = HMM_Vec3(0.0f, 0.0f, 0.0f);
+			vec3 upVec =  HMM_Vec3(0.0f, 1.0f, 0.0f);
+    
+			camera = new Camera(60.0,  WIDTH / HEIGHT, 0.1f, 2000.0f, eyepos, targetpos);
 
 			GLCall(glEnable(GL_DEPTH_TEST));
         
@@ -650,8 +658,11 @@ namespace GL
 			}
 
 			shader->Bind();
-			shader->SetUniform3f("viewPos", viewpos.X, viewpos.Y, viewpos.Z);
-			shader->SetUniform3f("lightPos", lightpos.X, lightpos.Y, lightpos.Z);
+			{
+				const vec3& viewpos = camera->GetEyePos();
+				shader->SetUniform3f("viewPos", viewpos.X, viewpos.Y, viewpos.Z);
+				shader->SetUniform3f("lightPos", lightpos.X, lightpos.Y, lightpos.Z);
+			}
 
 			angle += 0.5f;
 			const auto& mat = transform.getMatrix() * HMM_Rotate(/*angle*/0, HMM_Vec3(0, 0, 1));
@@ -662,7 +673,7 @@ namespace GL
             // debug menu
             {
                 ImGui::Begin("debug", 0, ImGuiWindowFlags_AlwaysAutoResize);
-                ImGui::InputFloat3("view pos", viewpos.Elements);
+				camera->DrawDebugMenu();
                 ImGui::InputFloat3("light pos", lightpos.Elements);
                 ImGui::End();
             }

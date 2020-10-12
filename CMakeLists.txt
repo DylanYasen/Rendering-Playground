@@ -20,7 +20,7 @@ set(SOURCES
    ${PROJECT_SOURCE_DIR}/FileUtils.cpp
    ${PROJECT_SOURCE_DIR}/gl.cpp
    ${PROJECT_SOURCE_DIR}/gl.h
-   ${PROJECT_SOURCE_DIR}/math.h
+   ${PROJECT_SOURCE_DIR}/Math.h
    ${PROJECT_SOURCE_DIR}/IndexBuffer.h
    ${PROJECT_SOURCE_DIR}/IndexBuffer.cpp
    ${PROJECT_SOURCE_DIR}/Shader.h
@@ -34,6 +34,9 @@ set(SOURCES
    ${PROJECT_SOURCE_DIR}/VertexBuffer.cpp
    ${PROJECT_SOURCE_DIR}/Renderer.h
    ${PROJECT_SOURCE_DIR}/Renderer.cpp
+
+   ${PROJECT_SOURCE_DIR}/Camera.h
+   ${PROJECT_SOURCE_DIR}/Camera.cpp
 
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
    ${PROJECT_SOURCE_DIR}/external/handmade_math.cpp

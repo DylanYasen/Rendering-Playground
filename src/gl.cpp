@@ -631,8 +631,7 @@ namespace GL
 			}
 
 			GLCall(glEnable(GL_DEPTH_TEST));
-			//GLCall(glClearColor(1.f, 1.f, 1.f, 1.f));
-
+        
 			return true;
 		}
 
@@ -710,6 +709,15 @@ namespace GL
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
         #endif
+        
+		int maxSamples = 0;
+		{
+			// todo: unfortunately can only do this after window creation.
+			// don't feel like hacking a temp window just to do a query
+			// glGetIntegerv ( GL_MAX_SAMPLES, &maxSamples );
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+		}
 
 		SDL_GLContext context = SDL_GL_CreateContext(window);
 		if (context == NULL)

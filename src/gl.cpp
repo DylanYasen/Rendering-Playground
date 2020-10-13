@@ -17,6 +17,8 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
+#include "Asset.h"
+
 // imgui
 #include "Camera.h"
 #include "Math.h"
@@ -99,7 +101,7 @@ namespace GL
             shader->Bind();
             shader->SetUniform4f("u_color", r, 0.1f, 0.1f, 1.0f);
 
-            renderer->Draw(*va, ib, *shader);
+            renderer->Render(*va, ib, *shader);
 
             if (r > 1.0f)
             {
@@ -156,7 +158,7 @@ namespace GL
         void draw()
         {
             renderer->Clear();
-            renderer->Draw(*va, ib, *shader);
+            //            renderer->Draw(*va, ib, *shader);
         }
     } // namespace rect
 
@@ -242,313 +244,8 @@ namespace GL
 
     namespace model
     {
-        struct Vertex
-        {
-            vec3 position;
-            vec3 normal;
-            vec3 tangent;
-            vec3 bitangent;
-            vec2 texCoords;
-        };
-
         Camera *camera = nullptr;
-
-        struct Mesh
-        {
-            std::vector<Vertex> vertices;
-            std::vector<unsigned int> indices;
-            std::vector<Texture *> textures;
-            Transform transform;
-            const char *name;
-
-            VertexArray *vao;
-            VertexBuffer vbo;
-            IndexBuffer ibo;
-
-            mat4 model;
-
-            unsigned int VAO, VBO, EBO;
-
-            Mesh(const std::vector<Vertex> &v, const std::vector<unsigned int> &i,
-                 const std::vector<Texture *> &t, Transform trans, const char *name)
-                : vertices(v), indices(i), textures(t), transform(trans), name(name)
-            {
-                model = transform.GetWorld();
-
-                vao = new VertexArray();
-                {
-                    vbo = VertexBuffer(&vertices[0], sizeof(Vertex) * vertices.size());
-
-                    VertexBufferLayout layout;
-                    layout.Push<float>(3); // pos
-                    layout.Push<float>(3); // normal
-                    layout.Push<float>(3); // tangent
-                    layout.Push<float>(3); // bitangent
-                    layout.Push<float>(2); // tex coords
-                    vao->AddBuffer(vbo, layout);
-                }
-                ibo = IndexBuffer(&indices[0], indices.size());
-            }
-
-            void draw(const mat4 &parentTransform)
-            {
-                unsigned int diffuseNr = 1;
-                unsigned int specularNr = 1;
-
-                vao->Bind();
-                ibo.Bind();
-                shader->Bind();
-
-                for (size_t i = 0; i < textures.size(); i++)
-                {
-                    textures[i]->Bind(i);
-                    shader->SetUniform1i(textures[i]->GetMaterialTypeName(), i);
-                }
-
-                model = transform.GetWorld();
-
-                const mat4 &mvp =
-                    camera->GetProjectionMatrix() * camera->GetViewMatrix() * model;
-                // todo: move TBN calculation to cpu and clean up this uniform
-                shader->SetUniformMat4f("u_m", model);
-
-                shader->SetUniformMat4f("u_mvp", mvp);
-                renderer->Draw(*vao, ibo, *shader);
-            }
-        };
-
-        std::unordered_set<std::string> loadedTextures;
-        std::string name = "";
-        std::string rootpath = "";
-        std::vector<Mesh *> meshes;
-        Transform transform;
-
-        mat4 aiMat4toMat4(const aiMatrix4x4 &aimat4)
-        {
-            mat4 result;
-
-            result.Elements[0][0] = aimat4.a1;
-            result.Elements[0][1] = aimat4.b1;
-            result.Elements[0][2] = aimat4.c1;
-            result.Elements[0][3] = aimat4.d1;
-
-            result.Elements[1][0] = aimat4.a2;
-            result.Elements[1][1] = aimat4.b2;
-            result.Elements[1][2] = aimat4.c2;
-            result.Elements[1][3] = aimat4.d2;
-
-            result.Elements[2][0] = aimat4.a3;
-            result.Elements[2][1] = aimat4.b3;
-            result.Elements[2][2] = aimat4.c3;
-            result.Elements[2][3] = aimat4.d3;
-
-            result.Elements[3][0] = aimat4.a4;
-            result.Elements[3][1] = aimat4.b4;
-            result.Elements[3][2] = aimat4.c4;
-            result.Elements[3][3] = aimat4.d4;
-
-            return result;
-        }
-
-        vec3 aiVec3ToVec3(const aiVector3D &aivec3)
-        {
-            return HMM_Vec3(aivec3.x, aivec3.y, aivec3.z);
-        }
-
-        void processTexturePath(std::string &name)
-        {
-            // fix messed up filepath
-            // expect textures are in the same folder as the model
-            {
-                size_t lastSlashPos = name.find_last_of('\\');
-                if (lastSlashPos != std::string::npos)
-                {
-                    name = name.substr(lastSlashPos + 1);
-                }
-            }
-            {
-                size_t lastSlashPos = name.find_last_of('/');
-                if (lastSlashPos != std::string::npos)
-                {
-                    name = name.substr(lastSlashPos + 1);
-                }
-            }
-        }
-
-        void loadMaterialTextures(const aiMaterial *material, aiTextureType type,
-                                  const std::string &typeName,
-                                  std::vector<Texture *> &outTextures)
-        {
-            for (size_t i = 0; i < material->GetTextureCount(type); i++)
-            {
-                aiString str;
-                material->GetTexture(type, i, &str);
-
-                std::string matName = str.C_Str();
-                processTexturePath(matName);
-
-                // prepend model root path
-                aiString fullpath(rootpath);
-                fullpath.Append(matName.c_str());
-                const char *cstr = fullpath.C_Str();
-
-                if (loadedTextures.find(cstr) == loadedTextures.end())
-                {
-                    Texture *tex = new Texture(cstr, typeName.c_str());
-                    outTextures.push_back(tex);
-                    loadedTextures.insert(cstr);
-                }
-            }
-
-            // load embeded textures
-            aiString textureName;
-            material->Get(AI_MATKEY_TEXTURE(type, 0), textureName);
-            if (textureName.length > 0)
-            {
-                std::string texName = textureName.C_Str();
-                processTexturePath(texName);
-
-                // prepend model root path
-                aiString fullpath(rootpath);
-                fullpath.Append(texName.c_str());
-                const char *cstr = fullpath.C_Str();
-
-                if (loadedTextures.find(cstr) == loadedTextures.end())
-                {
-                    Texture *tex = new Texture(cstr, typeName.c_str());
-                    outTextures.push_back(tex);
-                    loadedTextures.insert(cstr);
-                }
-            }
-        }
-
-        Mesh *processMesh(const aiScene *scene, aiNode *node,
-                          const mat4 &parentTransform, const aiMesh *mesh)
-        {
-            std::vector<Vertex> vertices;
-            std::vector<unsigned int> indices;
-            std::vector<Texture *> textures;
-
-            Transform transform;
-            {
-                aiVector3D t, s, rotAxis;
-                ai_real rotAngle;
-
-                const auto &nodeTransform = node->mTransformation;
-                nodeTransform.Decompose(s, rotAxis, rotAngle, t);
-
-                /*		aiQuaternion rot;
-                                            node->mTransformation.Decompose(s,
-       rot, t);
-                            */
-                transform.pos = HMM_Vec3(t.x, t.y, t.z);
-                transform.scale = HMM_Vec3(s.x, s.y, s.z);
-                transform.rot =
-                    HMM_QuaternionFromAxisAngle(aiVec3ToVec3(rotAxis), rotAngle);
-                transform.parentTransform = parentTransform;
-            }
-
-            // vertices
-            for (size_t i = 0; i < mesh->mNumVertices; i++)
-            {
-                Vertex vertex;
-
-                // position
-                const aiVector3D &v = mesh->mVertices[i];
-                vertex.position = HMM_Vec3(v.x, v.y, v.z);
-
-                // normal
-                const aiVector3D &n = mesh->mNormals[i];
-                vertex.normal = HMM_Vec3(n.x, n.y, n.z);
-
-                // texture coordinates
-                if (mesh->mTextureCoords[0])
-                {
-                    const aiVector3D &t = mesh->mTextureCoords[0][i];
-                    vertex.texCoords = HMM_Vec2(t.x, t.y);
-                }
-                else
-                {
-                    vertex.texCoords = HMM_Vec2(0.0f, 0.0f);
-                }
-
-                if (mesh->HasTangentsAndBitangents())
-                {
-                    vertex.tangent = aiVec3ToVec3(mesh->mTangents[i]);
-                    vertex.bitangent = aiVec3ToVec3(mesh->mBitangents[i]);
-                }
-
-                vertices.push_back(vertex);
-            }
-
-            // indices
-            for (size_t i = 0; i < mesh->mNumFaces; i++)
-            {
-                const aiFace &face = mesh->mFaces[i];
-                for (size_t j = 0; j < face.mNumIndices; j++)
-                {
-                    indices.push_back(face.mIndices[j]);
-                }
-            }
-
-            // material
-            if (mesh->mMaterialIndex >= 0)
-            {
-                const aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-
-                // enum aiTextureType
-                static const std::string typemap[] = {"none",
-                                                      "material.diffuse",
-                                                      "material.specular",
-                                                      "material.ambient",
-                                                      "material.emissive",
-                                                      "material.height",
-                                                      "material.normal",
-
-                                                      "material.shininess",
-                                                      "material.opacity",
-                                                      "material.lightmap",
-                                                      "material.reflection",
-
-                                                      "material.basecolor",
-                                                      "material.normal_camera",
-                                                      "material.emission_color",
-                                                      "material.matalness",
-                                                      "material.diffuse_roughness",
-                                                      "material.ambient_occlusion",
-
-                                                      "material.unknown"};
-
-                for (int i = 0; i < aiTextureType_UNKNOWN; i++)
-                {
-                    loadMaterialTextures(material, (aiTextureType)i,
-                                         TextureTypeToString((aiTextureType)i), textures);
-                }
-            }
-
-            Mesh *m =
-                new Mesh(vertices, indices, textures, transform, mesh->mName.C_Str());
-            return m;
-        }
-
-        void processNode(const aiScene *scene, aiNode *node,
-                         const mat4 &parentTransform)
-        {
-            const mat4 &transform = aiMat4toMat4(node->mTransformation);
-            const mat4 &accParentTransform = parentTransform * transform;
-
-            for (size_t i = 0; i < node->mNumMeshes; i++)
-            {
-                const aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-                meshes.push_back(processMesh(scene, node, accParentTransform, mesh));
-            }
-
-            // child nodes
-            for (size_t i = 0; i < node->mNumChildren; i++)
-            {
-                processNode(scene, node->mChildren[i], accParentTransform);
-            }
-        }
+        Asset *asset = nullptr;
 
         bool init()
         {
@@ -558,24 +255,7 @@ namespace GL
             // std::string filepath = "resources/models/junkrat/junkrat.fbx";
             // std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
 
-            const aiScene *scene = FileUtil::LoadModel(filepath.c_str());
-            {
-                const size_t lastSlashPos = filepath.find_last_of('/');
-                rootpath = filepath.substr(0, lastSlashPos + 1);
-                name = filepath.substr(lastSlashPos + 1);
-            }
-            if (scene)
-                processNode(scene, scene->mRootNode, HMM_Mat4d(1));
-
-            shader = new Shader("resources/shaders/material.shader");
-            shader->Bind();
-
-            // light settings
-            {
-                shader->SetUniform3f("light.ambient", 0.5, 0.5, 0.5);
-                shader->SetUniform3f("light.diffuse", 1, 1, 1);
-                shader->SetUniform3f("light.specular", 1.0f, 1.0f, 1.0f);
-            }
+            asset = new Asset(filepath);
 
             // junkrat material
             {
@@ -615,21 +295,9 @@ namespace GL
                     lightDiff = 10.0f;
                 }
             }
-
-            shader->Bind();
-            {
-                const vec3 &viewpos = camera->GetEyePos();
-                shader->SetUniform3f("viewPos", viewpos.X, viewpos.Y, viewpos.Z);
-                shader->SetUniform3f("lightPos", lightpos.X, lightpos.Y, lightpos.Z);
-            }
-
             angle += 0.5f;
-            const auto &mat =
-                transform.GetWorld() * HMM_Rotate(/*angle*/ 0, HMM_Vec3(0, 0, 1));
-            for (auto mesh : meshes)
-            {
-                mesh->draw(mat);
-            }
+            
+            asset->Render(camera, renderer);
 
             // debug menu
             {

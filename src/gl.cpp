@@ -626,11 +626,13 @@ namespace GL
 				//  shader->SetUniform1f("material.shininess", 32.0f);
 			}
 
-			vec3 eyepos = HMM_Vec3(0.0f, 300.0f, 300.0f);
-			vec3 targetpos = HMM_Vec3(0.0f, 0.0f, 0.0f);
-			vec3 upVec =  HMM_Vec3(0.0f, 1.0f, 0.0f);
-    
-			camera = new Camera(60.0,  WIDTH / HEIGHT, 0.1f, 2000.0f, eyepos, targetpos);
+			{
+				vec3 eyepos = HMM_Vec3(0.0f, 150.0f, 150.0f);
+				vec3 targetpos = HMM_Vec3(0.0f, 0.0f, 0.0f);
+				vec3 upVec =  HMM_Vec3(0.0f, 1.0f, 0.0f);
+				camera = new Camera(60.0,  WIDTH / HEIGHT, 0.1f, 2000.0f, eyepos, targetpos);	
+			}
+			
 
 			GLCall(glEnable(GL_DEPTH_TEST));
         

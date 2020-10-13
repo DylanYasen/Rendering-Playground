@@ -38,6 +38,9 @@ set(SOURCES
    ${PROJECT_SOURCE_DIR}/Camera.h
    ${PROJECT_SOURCE_DIR}/Camera.cpp
 
+   ${PROJECT_SOURCE_DIR}/Transform.h
+   ${PROJECT_SOURCE_DIR}/Transform.cpp
+
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
    ${PROJECT_SOURCE_DIR}/external/handmade_math.cpp
 

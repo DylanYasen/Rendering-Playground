@@ -7,12 +7,12 @@ Transform::Transform()
 {
 }
 
-const mat4 &Transform::GetLocal() const
+mat4 Transform::GetLocal() const
 {
     return HMM_Scale(scale) * HMM_QuaternionToMat4(rot) * HMM_Translate(pos);
 }
 
-const mat4 &Transform::GetWorld() const
+mat4 Transform::GetWorld() const
 {
     return parentTransform * GetLocal();
 }

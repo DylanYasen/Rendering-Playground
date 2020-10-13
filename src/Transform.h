@@ -1,3 +1,4 @@
+#pragma once
 #include "Math.h"
 
 class Transform
@@ -5,8 +6,8 @@ class Transform
 
 public:
     Transform();
-    const mat4 &GetLocal() const;
-    const mat4 &GetWorld() const;
+    mat4 GetLocal() const;
+    mat4 GetWorld() const;
 
 public:
     vec3 pos;

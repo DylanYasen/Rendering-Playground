@@ -11,6 +11,7 @@ class Shader;
 
 class Renderer;
 class Camera;
+class Scene;
 
 struct Vertex
 {
@@ -26,7 +27,7 @@ class Renderable
 public:
     Renderable();
     Renderable(const std::vector<Vertex> &v, const std::vector<unsigned int> &i);
-    virtual void Render(const Camera* camera, const Renderer *renderer) = 0;
+    virtual void Render(const Scene* scene, const Renderer *renderer) = 0;
     virtual void Destroy() = 0;
 
     void SetShader(Shader *shader) { m_shader = shader; };

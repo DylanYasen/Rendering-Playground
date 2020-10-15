@@ -7,6 +7,7 @@
 
 #include "Renderer.h"
 #include "Camera.h"
+#include "Scene.h"
 
 Mesh::Mesh()
 {
@@ -41,7 +42,7 @@ Mesh::~Mesh()
     delete m_vao, m_vbo, m_ibo;
 }
 
-void Mesh::Render(const Camera *camera, const Renderer *renderer)
+void Mesh::Render(const Scene* scene, const Renderer *renderer)
 {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
@@ -53,6 +54,8 @@ void Mesh::Render(const Camera *camera, const Renderer *renderer)
     }
 
     const auto &model = m_transform.GetWorld();
+    
+    const auto camera = scene->GetCamera();
 
     const mat4 &mvp =
         camera->GetProjectionMatrix() * camera->GetViewMatrix() * model;

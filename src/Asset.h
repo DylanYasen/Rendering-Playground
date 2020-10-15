@@ -14,6 +14,8 @@ class aiNode;
 class aiMesh;
 class aiMaterial;
 
+class Scene;
+
 class Asset : public Renderable
 {
 
@@ -21,7 +23,7 @@ public:
     Asset(const std::string &filepath);
     ~Asset();
 
-    virtual void Render(const Camera* camera, const Renderer* renderer) override;
+    virtual void Render(const Scene* scene, const Renderer* renderer) override;
     virtual void Destroy() override;
 
 private:

@@ -3,6 +3,8 @@
 #include <vector>
 #include "Renderable.h"
 
+class Scene;
+
 class Mesh : public Renderable
 {
 public:
@@ -12,6 +14,6 @@ public:
 
     ~Mesh();
 
-    virtual void Render(const Camera* camera, const Renderer* renderer) override;
+    virtual void Render(const Scene* scene, const Renderer* renderer) override;
     virtual void Destroy() override;
 };

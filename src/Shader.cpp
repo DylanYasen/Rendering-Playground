@@ -3,10 +3,10 @@
 #include <fstream>
 #include <sstream>
 
-Shader::Shader(const std::string& filepath)
+Shader::Shader(const std::string &filepath)
 	: filepath(filepath)
 {
-	const ShaderSource& shaderSrc = ParseShader(filepath);
+	const ShaderSource &shaderSrc = ParseShader(filepath);
 	rendererID = CreateShader(shaderSrc);
 }
 
@@ -24,7 +24,7 @@ static void printShaderLog(unsigned int shader)
 
 		GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength));
 
-		char* infoLog = (char*)malloc(maxLength * sizeof(char));
+		char *infoLog = (char *)malloc(maxLength * sizeof(char));
 		GLCall(glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog));
 		if (infoLogLength > 0)
 		{
@@ -37,7 +37,7 @@ static void printShaderLog(unsigned int shader)
 	}
 }
 
-ShaderSource Shader::ParseShader(const std::string& filename)
+ShaderSource Shader::ParseShader(const std::string &filename)
 {
 	enum class ShaderType
 	{
@@ -80,15 +80,17 @@ ShaderSource Shader::ParseShader(const std::string& filename)
 	return src;
 }
 
-unsigned int Shader::CreateShader(const struct ShaderSource& source)
+unsigned int Shader::CreateShader(const struct ShaderSource &source)
 {
 	GLCall(unsigned int programID = glCreateProgram());
 
 	unsigned int vertexShader = CompileShader(source.vertex.c_str(), GL_VERTEX_SHADER);
-	if (vertexShader == NULL) return false;
+	if (vertexShader == NULL)
+		return false;
 
 	unsigned int fragShader = CompileShader(source.fragment.c_str(), GL_FRAGMENT_SHADER);
-	if (fragShader == NULL) return false;
+	if (fragShader == NULL)
+		return false;
 
 	GLCall(glAttachShader(programID, vertexShader));
 	GLCall(glAttachShader(programID, fragShader));
@@ -107,7 +109,7 @@ unsigned int Shader::CreateShader(const struct ShaderSource& source)
 	return programID;
 }
 
-unsigned int Shader::CompileShader(const char* shaderSrc, unsigned int type)
+unsigned int Shader::CompileShader(const char *shaderSrc, unsigned int type)
 {
 	GLCall(unsigned int shader = glCreateShader(type));
 	GLCall(glShaderSource(shader, 1, &shaderSrc, NULL));
@@ -136,13 +138,13 @@ void Shader::PrintShaderLog(unsigned int shader)
 
 		GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength));
 
-        char* infoLog = (char*)malloc(maxLength * sizeof(char));
+		char *infoLog = (char *)malloc(maxLength * sizeof(char));
 		GLCall(glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog));
 		if (infoLogLength > 0)
 		{
 			printf("%s\n", infoLog);
 		}
-        delete infoLog;
+		delete infoLog;
 	}
 	else
 	{
@@ -160,33 +162,43 @@ void Shader::Unbind() const
 	GLCall(glUseProgram(0));
 }
 
-void Shader::SetUniform1i(const std::string& name, int v0)
+void Shader::SetUniform1i(const std::string &name, int v0)
 {
 	GLCall(glUniform1i(GetUniformLocation(name), v0));
 }
 
-void Shader::SetUniform1f(const std::string& name, float v0)
+void Shader::SetUniform1f(const std::string &name, float v0)
 {
 	GLCall(glUniform1f(GetUniformLocation(name), v0));
 }
 
-void Shader::SetUniform3f(const std::string& name, float v0, float v1, float v2)
+void Shader::SetUniform3f(const std::string &name, float v0, float v1, float v2)
 {
 	GLCall(glUniform3f(GetUniformLocation(name), v0, v1, v2));
 }
 
-void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
+void Shader::SetUniform3f(const std::string& name, const float v[3])
+{
+	GLCall(glUniform3f(GetUniformLocation(name), v[0], v[1], v[2]));
+}
+
+void Shader::SetUniform3f(const std::string &name, const vec3 &v)
+{
+	SetUniform3f(name, v.Elements);
+}
+
+void Shader::SetUniform4f(const std::string &name, float v0, float v1, float v2, float v3)
 {
 	GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 }
 
-void Shader::SetUniformMat4f(const std::string& name, const hmm_mat4& m)
+void Shader::SetUniformMat4f(const std::string &name, const hmm_mat4 &m)
 {
 	// need to transpose if the matrix is row major
 	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &m.Elements[0][0]));
 }
 
-int Shader::GetUniformLocation(const std::string& name)
+int Shader::GetUniformLocation(const std::string &name)
 {
 	int location = -1;
 	if (uniformCache.find(name) != uniformCache.end())

@@ -1,7 +1,5 @@
 #include "Camera.h"
 #include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_opengl3.h"
 
 Camera::Camera(float fov, float aspectRatio, float near, float far,
                const vec3 &eye, const vec3 &lookat)
@@ -36,6 +34,9 @@ mat4 Camera::GetProjectionMatrix() const
 
 void Camera::DrawDebugMenu()
 {
-    ImGui::InputFloat3("view pos", m_eye.Elements);
+    if (ImGui::CollapsingHeader("camera"))
+    {
+        ImGui::InputFloat3("view pos", m_eye.Elements);
+    }
     UpdateVectors();
 }

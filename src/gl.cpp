@@ -17,7 +17,9 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
+#include "Scene.h"
 #include "Asset.h"
+#include "Light.h"
 
 // imgui
 #include "Camera.h"
@@ -60,8 +62,6 @@ namespace GL
     SDL_Window *window = NULL;
     int location = -1;
 
-    vec3 lightpos = HMM_Vec3(200, 500, 100);
-    vec3 viewpos = HMM_Vec3(0.0f, -800.0f, -800.0f);
 
     namespace triangle
     {
@@ -244,8 +244,8 @@ namespace GL
 
     namespace model
     {
+        Scene *scene = nullptr;
         Camera *camera = nullptr;
-        Asset *asset = nullptr;
 
         bool init()
         {
@@ -254,8 +254,6 @@ namespace GL
             std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
             // std::string filepath = "resources/models/junkrat/junkrat.fbx";
             // std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
-
-            asset = new Asset(filepath);
 
             // junkrat material
             {
@@ -271,41 +269,33 @@ namespace GL
                 camera = new Camera(60.0, WIDTH / HEIGHT, 0.1f, 2000.0f, eyepos, targetpos);
             }
 
+            Light *light = new Light();
+            {
+                Transform t;
+                t.pos = HMM_Vec3(200, 500, 100);
+                light->transform = t;
+            }
+
+            scene = new Scene("scene1");
+            {
+                scene->SetCamera(camera);
+                scene->SetLight(light);
+            }
+            {
+                auto asset = new Asset(filepath);
+                scene->AddRenderable(asset);
+            }
+
             GLCall(glEnable(GL_DEPTH_TEST));
 
             return true;
         }
 
-        float angle = 0;
-        float lightDiff = 10.0f;
-
         void draw()
         {
             renderer->Clear();
 
-            {
-                lightpos.X += lightDiff;
-                // lightpos.Y += lightDiff;
-                if (lightpos.X >= 1000)
-                {
-                    lightDiff = -10.0f;
-                }
-                else if (lightpos.X <= -1000)
-                {
-                    lightDiff = 10.0f;
-                }
-            }
-            angle += 0.5f;
-            
-            asset->Render(camera, renderer);
-
-            // debug menu
-            {
-                ImGui::Begin("debug", 0, ImGuiWindowFlags_AlwaysAutoResize);
-                camera->DrawDebugMenu();
-                ImGui::InputFloat3("light pos", lightpos.Elements);
-                ImGui::End();
-            }
+            scene->Render(renderer);
         }
     } // namespace model
 

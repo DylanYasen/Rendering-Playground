@@ -41,6 +41,19 @@ set(SOURCES
    ${PROJECT_SOURCE_DIR}/Transform.h
    ${PROJECT_SOURCE_DIR}/Transform.cpp
 
+   ${PROJECT_SOURCE_DIR}/Asset.h
+   ${PROJECT_SOURCE_DIR}/Asset.cpp
+   ${PROJECT_SOURCE_DIR}/Mesh.h
+   ${PROJECT_SOURCE_DIR}/Mesh.cpp
+   ${PROJECT_SOURCE_DIR}/Renderable.h
+   ${PROJECT_SOURCE_DIR}/Renderable.cpp
+
+   ${PROJECT_SOURCE_DIR}/Scene.h
+   ${PROJECT_SOURCE_DIR}/Scene.cpp
+
+   ${PROJECT_SOURCE_DIR}/Light.h
+   ${PROJECT_SOURCE_DIR}/Light.cpp
+
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
    ${PROJECT_SOURCE_DIR}/external/handmade_math.cpp
 

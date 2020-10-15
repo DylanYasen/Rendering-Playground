@@ -4,6 +4,8 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "Scene.h"
+#include "Light.h"
 
 Asset::Asset(const std::string &filepath)
 {
@@ -21,20 +23,12 @@ Asset::Asset(const std::string &filepath)
     // init shader
     {
         // todo: abstract out material & material instances
-        Shader *shader = new Shader("resources/shaders/material.shader");
-
-        shader->Bind();
-        // light settings
-        {
-            shader->SetUniform3f("light.ambient", 0.5, 0.5, 0.5);
-            shader->SetUniform3f("light.diffuse", 1, 1, 1);
-            shader->SetUniform3f("light.specular", 1.0f, 1.0f, 1.0f);
-        }
+        m_shader = new Shader("resources/shaders/material.shader");
 
         // assign shader
         for (const auto &r : m_meshes)
         {
-            r->SetShader(shader);
+            r->SetShader(m_shader);
         }
     }
 }
@@ -43,11 +37,20 @@ Asset::~Asset()
 {
 }
 
-void Asset::Render(const Camera *camera, const Renderer *renderer)
+void Asset::Render(const Scene *scene, const Renderer *renderer)
 {
+    // light settings
+    {
+        Light *light = scene->GetLight();
+        m_shader->Bind();
+        m_shader->SetUniform3f("light.ambient", light->ambient);
+        m_shader->SetUniform3f("light.diffuse", light->diffuse);
+        m_shader->SetUniform3f("light.specular", light->specular);
+    }
+
     for (const auto &r : m_meshes)
     {
-        r->Render(camera, renderer);
+        r->Render(scene, renderer);
     }
 }
 
@@ -68,8 +71,8 @@ void Asset::ProcessNode(const aiScene *scene, aiNode *node,
     {
         ProcessNode(scene, node->mChildren[i], accParentTransform);
     }
-    
-//    printf("mesh size:%d\n", m_meshes.size());
+
+    //    printf("mesh size:%d\n", m_meshes.size());
 }
 
 Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,

@@ -54,6 +54,9 @@ set(SOURCES
    ${PROJECT_SOURCE_DIR}/Light.h
    ${PROJECT_SOURCE_DIR}/Light.cpp
 
+   ${PROJECT_SOURCE_DIR}/FrameData.h
+   ${PROJECT_SOURCE_DIR}/FrameData.cpp
+
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
    ${PROJECT_SOURCE_DIR}/external/handmade_math.cpp
 

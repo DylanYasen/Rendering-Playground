@@ -62,7 +62,6 @@ namespace GL
     SDL_Window *window = NULL;
     int location = -1;
 
-
     namespace triangle
     {
         bool init()
@@ -389,7 +388,7 @@ namespace GL
         }
     }
 
-    void render()
+    void render(const FrameData &frameData)
     {
         if (!bInit)
             return;
@@ -402,6 +401,19 @@ namespace GL
         }
 
         model::draw();
+
+        // draw frame info
+        {
+            ImGui::Begin("perf");
+            {
+                char str[30];
+                sprintf(str, "frame\n%.2f ms", frameData.deltaTime);
+                ImGui::PlotLines(str, frameData.frametimes, IM_ARRAYSIZE(frameData.frametimes), 0, 0,
+                                 10, 20);
+            }
+
+            ImGui::End();
+        }
 
         // imgui
         {

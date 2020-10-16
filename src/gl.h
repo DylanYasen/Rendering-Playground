@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include "SDL.h"
+#include "FrameData.h"
 
 struct SDL_Window;
 
@@ -23,7 +24,7 @@ bool glCheckError(const char* func, const char* file, int line);
 namespace GL
 {
 	void init(SDL_Window* win);
-	void render();
+	void render(const FrameData& frameData);
 
     void processInput(const SDL_Event& e);
 }

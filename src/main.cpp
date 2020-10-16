@@ -8,13 +8,17 @@
 //#include "d3d.h"
 #include "gl.h"
 
+#include "FrameData.h"
+
 const int WIDTH = 1024;
 const int HEIGHT = 768;
 
-int main(int argc, char const* argv[])
+int main(int argc, char const *argv[])
 {
-	SDL_Window* window = NULL;
-	SDL_Surface* screenSurface = NULL;
+	SDL_Window *window = NULL;
+	SDL_Surface *screenSurface = NULL;
+
+	FrameData frameData(SDL_GetPerformanceFrequency());
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -24,11 +28,11 @@ int main(int argc, char const* argv[])
 	{
 		//Create window
 		window = SDL_CreateWindow("Renderer Playground",
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			WIDTH,
-			HEIGHT,
-			SDL_WINDOW_SHOWN |SDL_WINDOW_OPENGL /*| SDL_WINDOW_VULKAN*/);
+								  SDL_WINDOWPOS_CENTERED,
+								  SDL_WINDOWPOS_CENTERED,
+								  WIDTH,
+								  HEIGHT,
+								  SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL /*| SDL_WINDOW_VULKAN*/);
 
 		if (window == NULL)
 		{
@@ -49,7 +53,7 @@ int main(int argc, char const* argv[])
 			{
 				while (SDL_PollEvent(&e) != 0)
 				{
-                    GL::processInput(e);
+					GL::processInput(e);
 					if (e.type == SDL_QUIT)
 					{
 						bRunning = false;
@@ -60,9 +64,9 @@ int main(int argc, char const* argv[])
 				//DX11::render();
 				/*Vulkan::render();*/
 #else
-				GL::render();
+				GL::render(frameData);
 #endif
-				GL::render();
+				frameData.Stamp(SDL_GetPerformanceCounter());
 			}
 		}
 

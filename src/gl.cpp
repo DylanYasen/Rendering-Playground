@@ -266,7 +266,7 @@ namespace GL
                 vec3 eyepos = HMM_Vec3(0.0f, 150.0f, 150.0f);
                 vec3 targetpos = HMM_Vec3(0.0f, 0.0f, 0.0f);
                 vec3 upVec = HMM_Vec3(0.0f, 1.0f, 0.0f);
-                camera = new Camera(60.0, WIDTH / HEIGHT, 0.1f, 2000.0f, eyepos, targetpos);
+                camera = new Camera(60.0, WIDTH / HEIGHT, 1, 10000, eyepos, targetpos);
             }
 
             Light *light = new Light();

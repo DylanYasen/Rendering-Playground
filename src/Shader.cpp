@@ -144,7 +144,7 @@ void Shader::PrintShaderLog(unsigned int shader)
 		{
 			printf("%s\n", infoLog);
 		}
-		delete infoLog;
+		free(infoLog);
 	}
 	else
 	{

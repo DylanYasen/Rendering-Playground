@@ -62,6 +62,9 @@ namespace GL
     SDL_Window *window = NULL;
     int location = -1;
 
+    Scene *scene = nullptr;
+    Camera *camera = nullptr;
+
     namespace triangle
     {
         bool init()
@@ -241,62 +244,45 @@ namespace GL
         }
     } // namespace cube
 
-    namespace model
+    void initScene()
     {
-        Scene *scene = nullptr;
-        Camera *camera = nullptr;
+        // std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
+        // std::string filepath = "resources/models/nanosuit/source/suit.fbx";
+        std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
+        // std::string filepath = "resources/models/junkrat/junkrat.fbx";
+        // std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
 
-        bool init()
+        // junkrat material
         {
-            // std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
-            // std::string filepath = "resources/models/nanosuit/source/suit.fbx";
-            std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
-            // std::string filepath = "resources/models/junkrat/junkrat.fbx";
-            // std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
-
-            // junkrat material
-            {
-                //  transform.rotAngle = -90;
-                //  transform.rotAxis = HMM_Vec3(1,0,0);
-                //  shader->SetUniform1f("material.shininess", 32.0f);
-            }
-
-            {
-                vec3 eyepos = HMM_Vec3(0.0f, 150.0f, 150.0f);
-                vec3 targetpos = HMM_Vec3(0.0f, 0.0f, 0.0f);
-                vec3 upVec = HMM_Vec3(0.0f, 1.0f, 0.0f);
-                camera = new Camera(60.0, WIDTH / HEIGHT, 1, 10000, eyepos, targetpos);
-            }
-
-            Light *light = new Light();
-            {
-                Transform t;
-                t.pos = HMM_Vec3(200, 500, 100);
-                light->transform = t;
-            }
-
-            scene = new Scene("scene1");
-            {
-                scene->SetCamera(camera);
-                scene->SetLight(light);
-            }
-            {
-                auto asset = new Asset(filepath);
-                scene->AddRenderable(asset);
-            }
-
-            GLCall(glEnable(GL_DEPTH_TEST));
-
-            return true;
+            //  transform.rotAngle = -90;
+            //  transform.rotAxis = HMM_Vec3(1,0,0);
+            //  shader->SetUniform1f("material.shininess", 32.0f);
         }
 
-        void draw()
         {
-            renderer->Clear();
-
-            scene->Render(renderer);
+            vec3 eyepos = HMM_Vec3(0.0f, 150.0f, 150.0f);
+            vec3 targetpos = HMM_Vec3(0.0f, 0.0f, 0.0f);
+            vec3 upVec = HMM_Vec3(0.0f, 1.0f, 0.0f);
+            camera = new Camera(60.0, WIDTH / HEIGHT, 1, 10000, eyepos, targetpos);
         }
-    } // namespace model
+
+        Light *light = new Light();
+        {
+            Transform t;
+            t.pos = HMM_Vec3(200, 500, 100);
+            light->transform = t;
+        }
+
+        scene = new Scene("scene1");
+        {
+            scene->SetCamera(camera);
+            scene->SetLight(light);
+        }
+        {
+            auto asset = new Asset(filepath);
+            scene->AddRenderable(asset);
+        }
+    }
 
     bool initGL()
     {
@@ -305,10 +291,13 @@ namespace GL
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-        // return triangle::init();
-        // return rect::init();
-        //		return cube::init();
-        return model::init();
+        GLCall(glEnable(GL_DEPTH_TEST));
+
+        GLCall(glClearColor(0.f, 0.f, 0.f, 1.f));
+
+        initScene();
+
+        return true;
     }
 
     void init(SDL_Window *win)
@@ -393,6 +382,8 @@ namespace GL
         if (!bInit)
             return;
 
+        renderer->Clear();
+
         // imgui
         {
             ImGui_ImplOpenGL3_NewFrame();
@@ -400,7 +391,7 @@ namespace GL
             ImGui::NewFrame();
         }
 
-        model::draw();
+        scene->Render(renderer);
 
         // draw frame info
         {

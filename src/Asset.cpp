@@ -154,30 +154,6 @@ Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
     if (mesh->mMaterialIndex >= 0)
     {
         const aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-
-        // enum aiTextureType
-        static const std::string typemap[] = {"none",
-                                              "material.diffuse",
-                                              "material.specular",
-                                              "material.ambient",
-                                              "material.emissive",
-                                              "material.height",
-                                              "material.normal",
-
-                                              "material.shininess",
-                                              "material.opacity",
-                                              "material.lightmap",
-                                              "material.reflection",
-
-                                              "material.basecolor",
-                                              "material.normal_camera",
-                                              "material.emission_color",
-                                              "material.matalness",
-                                              "material.diffuse_roughness",
-                                              "material.ambient_occlusion",
-
-                                              "material.unknown"};
-
         for (int i = 0; i < aiTextureType_UNKNOWN; i++)
         {
             LoadMaterialTextures(material, (aiTextureType)i,

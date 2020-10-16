@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "Scene.h"
 #include "Light.h"
+#include "Camera.h"
 
 Asset::Asset(const std::string &filepath)
 {
@@ -46,6 +47,15 @@ void Asset::Render(const Scene *scene, const Renderer *renderer)
         m_shader->SetUniform3f("light.ambient", light->ambient);
         m_shader->SetUniform3f("light.diffuse", light->diffuse);
         m_shader->SetUniform3f("light.specular", light->specular);
+    }
+
+    // view setting
+    {
+        Camera *camera = scene->GetCamera();
+        const vec3 &viewpos = camera->GetEyePos();
+        m_shader->SetUniform3f("viewPos", viewpos.X, viewpos.Y, viewpos.Z);
+        //        m_shader->SetUniform3f("lightPos", lightpos.X, lightpos.Y, lightpos.Z);
+        m_shader->SetUniform3f("lightPos", 0, 500, 100);
     }
 
     for (const auto &r : m_meshes)

@@ -64,13 +64,6 @@ void Mesh::Render(const Scene* scene, const Renderer *renderer)
     m_shader->SetUniformMat4f("u_m", model);
     m_shader->SetUniformMat4f("u_mvp", mvp);
 
-    {
-        const vec3 &viewpos = camera->GetEyePos();
-        m_shader->SetUniform3f("viewPos", viewpos.X, viewpos.Y, viewpos.Z);
-        //        m_shader->SetUniform3f("lightPos", lightpos.X, lightpos.Y, lightpos.Z);
-        m_shader->SetUniform3f("lightPos", 0, 500, 100);
-    }
-
     renderer->Render(*m_vao, *m_ibo, *m_shader);
 }
 

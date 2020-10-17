@@ -30,6 +30,7 @@ static void printShaderLog(unsigned int shader)
 		{
 			printf("%s\n", infoLog);
 		}
+		free(infoLog);
 	}
 	else
 	{

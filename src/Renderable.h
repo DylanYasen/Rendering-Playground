@@ -1,5 +1,7 @@
 #pragma once
 #include "Transform.h"
+#include "Allocator.h"
+
 #include <vector>
 #include <string>
 
@@ -26,7 +28,7 @@ class Renderable
 {
 public:
     Renderable();
-    Renderable(const std::vector<Vertex> &v, const std::vector<unsigned int> &i);
+    Renderable(const std::vector<Vertex, Allocator<Vertex>> &v, const std::vector<unsigned int> &i);
     virtual void Render(const Scene* scene, const Renderer *renderer) = 0;
     virtual void Destroy() = 0;
 
@@ -36,7 +38,7 @@ public:
     Transform m_transform;
 
 protected:
-    std::vector<Vertex> m_vertices;
+    std::vector<Vertex, Allocator<Vertex>> m_vertices;
     std::vector<unsigned int> m_indices;
 
     std::vector<Texture *> m_textures;

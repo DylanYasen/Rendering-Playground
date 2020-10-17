@@ -13,7 +13,10 @@ Mesh::Mesh()
 {
 }
 
-Mesh::Mesh(const std::vector<Vertex> &v, const std::vector<unsigned int> &i,
+// todo: investigate templated typedef alias issue
+// template<typename T>
+// using vector = std::vector<T, Allocator<T>>
+Mesh::Mesh(const std::vector<Vertex, Allocator<Vertex>> &v, const std::vector<unsigned int> &i,
            const std::vector<Texture *> &t, const Transform &trans, const std::string &name)
     : Renderable(v, i)
 {

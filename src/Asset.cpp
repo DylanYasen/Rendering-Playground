@@ -47,7 +47,7 @@ void Asset::Render(const Scene *scene, const Renderer *renderer)
         m_shader->SetUniform3f("light.ambient", light->ambient);
         m_shader->SetUniform3f("light.diffuse", light->diffuse);
         m_shader->SetUniform3f("light.specular", light->specular);
-        
+
         m_shader->SetUniform3f("lightPos", light->transform.pos);
     }
 
@@ -55,7 +55,7 @@ void Asset::Render(const Scene *scene, const Renderer *renderer)
     {
         Camera *camera = scene->GetCamera();
         const vec3 &viewpos = camera->GetEyePos();
-        m_shader->SetUniform3f("viewPos", viewpos.X, viewpos.Y, viewpos.Z);   
+        m_shader->SetUniform3f("viewPos", viewpos.X, viewpos.Y, viewpos.Z);
     }
 
     for (const auto &r : m_meshes)
@@ -88,7 +88,7 @@ void Asset::ProcessNode(const aiScene *scene, aiNode *node,
 Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
                          const mat4 &parentTransform, const aiMesh *mesh)
 {
-    std::vector<Vertex> vertices;
+    std::vector<Vertex, Allocator<Vertex>> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture *> textures;
 
@@ -161,8 +161,8 @@ Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
         }
     }
 
-    Mesh *m = new Mesh(vertices, indices, textures,
-                       transform, mesh->mName.C_Str());
+    Mesh *m = new (EResourceType::Geometry) Mesh(vertices, indices, textures,
+                                                 transform, mesh->mName.C_Str());
     return m;
 }
 

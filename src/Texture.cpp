@@ -1,17 +1,21 @@
 #include "Texture.h"
 #include "gl.h"
 #include "stb_image.h"
+#include "Allocator.h"
 
-Texture::Texture(const std::string& path, const std::string& textureType)
-	:rendererID(0), filepath(path), type(textureType),
-	buffer(nullptr), width(0), height(0), bpp(0)
+Texture::Texture(const std::string &path, const std::string &textureType)
+	: rendererID(0), filepath(path), type(textureType),
+	  buffer(nullptr), width(0), height(0), bpp(0)
 {
+	// todo: flipUV vs flipTexture
 	stbi_set_flip_vertically_on_load(1);
+
 	buffer = stbi_load(filepath.c_str(), &width, &height, &bpp, 4);
 
 	GLCall(glGenTextures(1, &rendererID));
 	GLCall(glBindTexture(GL_TEXTURE_2D, rendererID));
 
+	// todo: parameterize these things
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
@@ -27,6 +31,12 @@ Texture::Texture(const std::string& path, const std::string& textureType)
 
 	if (buffer)
 	{
+		// this is on the gpu, tracking by ID instead of the buffer address.
+		{
+			size_t size = width * height * bpp / 8;
+			MemTracker::track(rendererID, EResourceType::Texture, size);
+		}
+
 		printf("loaded [%s] texture: [%s] \n", textureType.c_str(), filepath.c_str());
 		stbi_image_free(buffer);
 	}
@@ -38,6 +48,7 @@ Texture::Texture(const std::string& path, const std::string& textureType)
 
 Texture::~Texture()
 {
+	MemTracker::untrack(rendererID);
 	GLCall(glDeleteTextures(1, &rendererID));
 }
 

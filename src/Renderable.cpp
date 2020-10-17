@@ -11,7 +11,7 @@ Renderable::Renderable()
 {
 }
 
-Renderable::Renderable(const std::vector<Vertex> &v, const std::vector<unsigned int> &i)
+Renderable::Renderable(const std::vector<Vertex, Allocator<Vertex>> &v, const std::vector<unsigned int> &i)
     : m_vertices(v), m_indices(i)
 {
 }

@@ -57,6 +57,9 @@ set(SOURCES
    ${PROJECT_SOURCE_DIR}/FrameData.h
    ${PROJECT_SOURCE_DIR}/FrameData.cpp
 
+   ${PROJECT_SOURCE_DIR}/Allocator.h
+   ${PROJECT_SOURCE_DIR}/Allocator.cpp
+   
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
    ${PROJECT_SOURCE_DIR}/external/handmade_math.cpp
 
@@ -102,15 +105,15 @@ endif()
 
 # Vulkan
 find_package(Vulkan)
-if(Vulkan_FOUND)
-    add_definitions(VULKAN)
+if(VULKAN_FOUND)
+    # add_definitions(VULKAN)
     include_directories(${VULKAN_INCLUDE_DIR})
     target_link_libraries(${PROJECT_NAME} ${VULKAN_LIBRARY})
     if(WIN32)
     # post build hook for transpiling glsl to spv
     # add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND call "$(SolutionDir)scripts/transpileGlsl.bat" "$(OutDir)shaders")
     endif()
-endif(Vulkan_FOUND)
+endif(VULKAN_FOUND)
 
 # std headers
 include_directories(external/src/stb)

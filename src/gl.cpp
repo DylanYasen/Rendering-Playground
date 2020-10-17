@@ -29,6 +29,8 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl.h"
 
+#include "Allocator.h"
+
 const int WIDTH = 1024;
 const int HEIGHT = 768;
 
@@ -403,6 +405,16 @@ namespace GL
                                  10, 20);
             }
 
+            {
+                for (int i = 0; i < (int)EResourceType::Max; i++)
+                {
+                    EResourceType type = (EResourceType)i;
+                    size_t size = MemTracker::resourceMap[type];
+                    const char *str = ResourceTypeToStr(type);
+                    ImGui::LabelText(str, "%.2f kb", size / 1000.0 );
+                }
+            }
+            
             ImGui::End();
         }
 

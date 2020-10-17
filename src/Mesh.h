@@ -9,7 +9,7 @@ class Mesh : public Renderable
 {
 public:
     Mesh();
-    Mesh(const std::vector<Vertex> &v, const std::vector<unsigned int> &i,
+    Mesh(const std::vector<Vertex, Allocator<Vertex>>&v, const std::vector<unsigned int> &i,
          const std::vector<Texture *> &t, const Transform& trans, const std::string& name);
 
     ~Mesh();

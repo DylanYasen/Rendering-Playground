@@ -64,7 +64,6 @@ set(SOURCES
    ${PROJECT_SOURCE_DIR}/MemTracker.cpp
    
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
-   ${PROJECT_SOURCE_DIR}/external/handmade_math.cpp
 
    external/src/imgui/imgui.cpp
    external/src/imgui/imgui_draw.cpp
@@ -121,9 +120,6 @@ endif(VULKAN_FOUND)
 # std headers
 include_directories(external/src/stb)
 
-# handmade math headers
-include_directories(external/src/math)
-
 # assimp
 # todo: figure out a way to override the destination for this shit.  ASSIMP_BIN_INSTALL_DIR is a cached var
 set(ASSIMP_NO_EXPORT ON)
@@ -141,3 +137,6 @@ target_link_libraries(${PROJECT_NAME} assimp)
 # imgui
 include_directories(external/src/imgui)
 include_directories(external/src/imgui/examples)
+
+# glm
+include_directories(external/src/glm)

@@ -123,38 +123,38 @@ namespace GL
     {
         bool init()
         {
-            GLCall(glClearColor(0.f, 0.f, 0.f, 1.f));
+            // GLCall(glClearColor(0.f, 0.f, 0.f, 1.f));
 
-            const float vertexData[] = {100.0f, 100.0f, 0.0f, 0.0f, 200.0f, 100.0f,
-                                        1.0f, 0.0f, 200.0f, 200.0f, 1.0f, 1.0f,
-                                        100.0f, 200.0f, 0.0f, 1.0f};
+            // const float vertexData[] = {100.0f, 100.0f, 0.0f, 0.0f, 200.0f, 100.0f,
+            //                             1.0f, 0.0f, 200.0f, 200.0f, 1.0f, 1.0f,
+            //                             100.0f, 200.0f, 0.0f, 1.0f};
 
-            va = new VertexArray();
-            {
-                vb = VertexBuffer(vertexData, sizeof(vertexData));
+            // va = new VertexArray();
+            // {
+            //     vb = VertexBuffer(vertexData, sizeof(vertexData));
 
-                VertexBufferLayout layout;
-                layout.Push<float>(2);
-                layout.Push<float>(2);
-                va->AddBuffer(vb, layout);
-            }
+            //     VertexBufferLayout layout;
+            //     layout.Push<float>(2);
+            //     layout.Push<float>(2);
+            //     va->AddBuffer(vb, layout);
+            // }
 
-            const unsigned int indexData[] = {0, 1, 2, 2, 3, 0};
-            ib = IndexBuffer(indexData, 6);
+            // const unsigned int indexData[] = {0, 1, 2, 2, 3, 0};
+            // ib = IndexBuffer(indexData, 6);
 
-            hmm_mat4 proj = HMM_Orthographic(0.0f, WIDTH, 0, HEIGHT, -10, 10);
-            hmm_mat4 view = HMM_Translate(HMM_Vec3(-100, 0, 0));
-            hmm_mat4 model = HMM_Translate(HMM_Vec3(200, 200, 0));
+            // mat4 proj = HMM_Orthographic(0.0f, WIDTH, 0, HEIGHT, -10, 10);
+            // mat4 view = HMM_Translate(HMM_Vec3(-100, 0, 0));
+            // mat4 model = HMM_Translate(HMM_Vec3(200, 200, 0));
 
-            hmm_mat4 mvp = proj * view * model;
+            // mat4 mvp = proj * view * model;
 
-            shader = new Shader("resources/shaders/sprite.shader");
-            shader->Bind();
-            shader->SetUniformMat4f("u_mvp", mvp);
+            // shader = new Shader("resources/shaders/sprite.shader");
+            // shader->Bind();
+            // shader->SetUniformMat4f("u_mvp", mvp);
 
-            texture = new Texture("resources/textures/mob.PNG");
-            texture->Bind();
-            shader->SetUniform1i("u_texture", 0);
+            // texture = new Texture("resources/textures/mob.PNG");
+            // texture->Bind();
+            // shader->SetUniform1i("u_texture", 0);
 
             return true;
         }
@@ -168,63 +168,63 @@ namespace GL
 
     namespace cube
     {
-        hmm_mat4 model;
-        hmm_mat4 view;
-        hmm_mat4 projection;
+        mat4 model;
+        mat4 view;
+        mat4 projection;
 
         bool init()
         {
-            model = HMM_Scale(HMM_Vec3(1, 1, 1)) * HMM_Rotate(30, HMM_Vec3(0, 1, 0)) *
-                    HMM_Translate(HMM_Vec3(0, 0, 0));
-            view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -5.0f));
-            projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 1000.0f);
-
-            shader = new Shader("resources/shaders/cube.shader");
-            shader->Bind();
-            shader->SetUniformMat4f("u_m", model);
-            shader->SetUniformMat4f("u_v", view);
-            shader->SetUniformMat4f("u_p", projection);
-
-            texture = new Texture("resources/textures/cube.PNG");
-            texture->Bind();
-            shader->SetUniform1i("u_tex", 0);
-
-            const float vertices[] = {
-                -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-                0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-                -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-
-                -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-                0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-                -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-
-                -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-                -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-                -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-                0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-                0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-                0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-                -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-                0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-                -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-                -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-                0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-                -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
-
-            va = new VertexArray();
-            {
-                vb = VertexBuffer(vertices, sizeof(vertices));
-
-                VertexBufferLayout layout;
-                layout.Push<float>(3);
-                layout.Push<float>(2);
-                va->AddBuffer(vb, layout);
-            }
-
-            glEnable(GL_DEPTH_TEST);
+            //            model = HMM_Scale(HMM_Vec3(1, 1, 1)) * HMM_Rotate(30, HMM_Vec3(0, 1, 0)) *
+            //                    HMM_Translate(HMM_Vec3(0, 0, 0));
+            //            view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -5.0f));
+            //            projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 1000.0f);
+            //
+            //            shader = new Shader("resources/shaders/cube.shader");
+            //            shader->Bind();
+            //            shader->SetUniformMat4f("u_m", model);
+            //            shader->SetUniformMat4f("u_v", view);
+            //            shader->SetUniformMat4f("u_p", projection);
+            //
+            //            texture = new Texture("resources/textures/cube.PNG");
+            //            texture->Bind();
+            //            shader->SetUniform1i("u_tex", 0);
+            //
+            //            const float vertices[] = {
+            //                -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+            //                0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            //                -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            //
+            //                -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            //                0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+            //                -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            //
+            //                -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            //                -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            //                -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            //
+            //                0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            //                0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            //                0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            //
+            //                -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+            //                0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            //                -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            //
+            //                -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            //                0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            //                -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
+            //
+            //            va = new VertexArray();
+            //            {
+            //                vb = VertexBuffer(vertices, sizeof(vertices));
+            //
+            //                VertexBufferLayout layout;
+            //                layout.Push<float>(3);
+            //                layout.Push<float>(2);
+            //                va->AddBuffer(vb, layout);
+            //            }
+            //
+            //            glEnable(GL_DEPTH_TEST);
 
             return true;
         }
@@ -233,14 +233,14 @@ namespace GL
         {
             renderer->Clear();
 
-            va->Bind();
-            shader->Bind();
-
-            // rotate
-            {
-                model = model * HMM_Rotate(1.0f, HMM_Vec3(1, 1, 0));
-                shader->SetUniformMat4f("u_m", model);
-            }
+            //            va->Bind();
+            //            shader->Bind();
+            //
+            //            // rotate
+            //            {
+            //                model = model * HMM_Rotate(1.0f, HMM_Vec3(1, 1, 0));
+            //                shader->SetUniformMat4f("u_m", model);
+            //            }
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
@@ -262,16 +262,15 @@ namespace GL
         }
 
         {
-            vec3 eyepos = HMM_Vec3(0.0f, 150.0f, 150.0f);
-            vec3 targetpos = HMM_Vec3(0.0f, 0.0f, 0.0f);
-            vec3 upVec = HMM_Vec3(0.0f, 1.0f, 0.0f);
-            camera = new Camera(60.0, WIDTH / HEIGHT, 1, 10000, eyepos, targetpos);
+            vec3 eyepos = vec3(0.0f, 100.0f, 100.0f);
+            vec3 targetpos = vec3(0.0f, 0.0f, 0.0f);
+            vec3 upVec = vec3(0.0f, 1.0f, 0.0f);
+            camera = new Camera(80, WIDTH / HEIGHT, 1, 10000, eyepos, targetpos);
         }
 
         Light *light = new Light();
         {
-            Transform t;
-            t.pos = HMM_Vec3(200, 500, 100);
+            Transform t(vec3(200, 500, 100));
             light->transform = t;
         }
 
@@ -409,12 +408,12 @@ namespace GL
                 for (int i = 0; i < (int)EResourceType::Max; i++)
                 {
                     EResourceType type = (EResourceType)i;
-                    size_t size = MemTracker::resourceMap[type];
+                    size_t size = MemTracker::resourceMap[(uint8_t)type];
                     const char *str = ResourceTypeToStr(type);
-                    ImGui::LabelText(str, "%.2f kb", size / 1000.0 );
+                    ImGui::LabelText(str, "%.2f mb", size / 1000000.0);
                 }
             }
-            
+
             ImGui::End();
         }
 

@@ -57,16 +57,15 @@ void Mesh::Render(const Scene* scene, const Renderer *renderer)
     }
 
     const auto &model = m_transform.GetWorld();
-    
     const auto camera = scene->GetCamera();
 
     const mat4 &mvp =
-        camera->GetProjectionMatrix() * camera->GetViewMatrix() * model;
+        camera->projMatrix * camera->viewMatrix * model;
 
     // todo: move TBN calculation to cpu and clean up this uniform
     m_shader->SetUniformMat4f("u_m", model);
     m_shader->SetUniformMat4f("u_mvp", mvp);
-
+    
     renderer->Render(*m_vao, *m_ibo, *m_shader);
 }
 

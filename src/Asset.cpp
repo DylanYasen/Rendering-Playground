@@ -18,7 +18,7 @@ Asset::Asset(const std::string &filepath)
     }
     if (scene)
     {
-        ProcessNode(scene, scene->mRootNode, HMM_Mat4d(1));
+        ProcessNode(scene, scene->mRootNode, mat4(1));
     }
 
     // init shader
@@ -48,14 +48,14 @@ void Asset::Render(const Scene *scene, const Renderer *renderer)
         m_shader->SetUniform3f("light.diffuse", light->diffuse);
         m_shader->SetUniform3f("light.specular", light->specular);
 
-        m_shader->SetUniform3f("lightPos", light->transform.pos);
+        m_shader->SetUniform3f("lightPos", light->transform.position);
     }
 
     // view setting
     {
         Camera *camera = scene->GetCamera();
-        const vec3 &viewpos = camera->GetEyePos();
-        m_shader->SetUniform3f("viewPos", viewpos.X, viewpos.Y, viewpos.Z);
+        const vec3 &viewpos = camera->eyePos;
+        m_shader->SetUniform3f("viewPos", viewpos);
     }
 
     for (const auto &r : m_meshes)
@@ -100,11 +100,13 @@ Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
         const auto &nodeTransform = node->mTransformation;
         nodeTransform.Decompose(s, rotAxis, rotAngle, t);
 
-        transform.pos = HMM_Vec3(t.x, t.y, t.z);
-        transform.scale = HMM_Vec3(s.x, s.y, s.z);
-        transform.rot =
-            HMM_QuaternionFromAxisAngle(Math::aiVec3ToVec3(rotAxis), rotAngle);
-        transform.parentTransform = parentTransform;
+        transform.position = vec3(t.x, t.y, t.z);
+        transform.scale = vec3(s.x, s.y, s.z);
+        transform.rotation =
+            glm::angleAxis(rotAngle, Math::aiVec3ToVec3(rotAxis));
+        // transform.parentTransform = parentTransform;
+        // transform.matrix = Math::aiMat4toMat4(nodeTransform);
+        transform.localToWorld = parentTransform;
     }
 
     // vertices
@@ -114,21 +116,21 @@ Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
 
         // position
         const aiVector3D &v = mesh->mVertices[i];
-        vertex.position = HMM_Vec3(v.x, v.y, v.z);
+        vertex.position = vec3(v.x, v.y, v.z);
 
         // normal
         const aiVector3D &n = mesh->mNormals[i];
-        vertex.normal = HMM_Vec3(n.x, n.y, n.z);
+        vertex.normal = vec3(n.x, n.y, n.z);
 
         // texture coordinates
         if (mesh->mTextureCoords[0])
         {
             const aiVector3D &t = mesh->mTextureCoords[0][i];
-            vertex.texCoords = HMM_Vec2(t.x, t.y);
+            vertex.texCoords = vec2(t.x, t.y);
         }
         else
         {
-            vertex.texCoords = HMM_Vec2(0.0f, 0.0f);
+            vertex.texCoords = vec2(0.0f, 0.0f);
         }
 
         if (mesh->HasTangentsAndBitangents())

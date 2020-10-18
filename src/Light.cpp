@@ -3,9 +3,9 @@
 #include "imgui.h"
 
 Light::Light()
-    : ambient(HMM_Vec3(0.5, 0.5, 0.5)),
-      diffuse(HMM_Vec3(1, 1, 1)),
-      specular(HMM_Vec3(1, 1, 1))
+    : ambient(vec3(0.5, 0.5, 0.5)),
+      diffuse(vec3(1, 1, 1)),
+      specular(vec3(1, 1, 1))
 {
 }
 
@@ -17,9 +17,9 @@ void Light::DrawDebugMenu()
 {
     if (ImGui::CollapsingHeader("light"))
     {
-        ImGui::InputFloat3("position", transform.pos.Elements);
-        ImGui::InputFloat3("ambient", ambient.Elements);
-        ImGui::InputFloat3("diffuse", diffuse.Elements);
-        ImGui::InputFloat3("specular", specular.Elements);
+        ImGui::InputFloat3("position", &transform.position.x);
+        ImGui::InputFloat3("ambient", &ambient.x);
+        ImGui::InputFloat3("diffuse", &diffuse.x);
+        ImGui::InputFloat3("specular", &specular.x);
     }
 }

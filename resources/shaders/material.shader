@@ -71,18 +71,21 @@ uniform Light light;
 
 void main()
 {
+	vec3 color = texture(material.diffuse, fs_in.texCoord).rgb;
+
 	// normal
 	vec3 normal = texture(material.normals, fs_in.texCoord).rgb;
 	normal = normalize(normal * 2.0 - 1.0);
 
-	vec3 ambient  = light.ambient  * texture(material.diffuse, fs_in.texCoord).rgb;
-
+	// ambient
+	vec3 ambient  = light.ambient * color; 
+	
 	// diffuse
 	vec3 lightDir = normalize(fs_in.tangentLightPos - fs_in.tangentWorldPos);
 	float diff = max(dot(lightDir, normal), 0.0);
-	vec3 diffuse  = light.diffuse  * diff * texture(material.diffuse, fs_in.texCoord).rgb;  
-	
-	// sepc
+	vec3 diffuse  = light.diffuse  * diff * color;  
+
+	// spec
 	vec3 viewdir = normalize(fs_in.tangentViewPos - fs_in.tangentWorldPos);
 	vec3 reflectdir = reflect(-lightDir, normal);
 	vec3 halfwaydir = normalize(lightDir + viewdir);

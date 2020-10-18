@@ -3,9 +3,9 @@
 #include "imgui.h"
 
 Light::Light()
-    : ambient(vec3(0.5, 0.5, 0.5)),
-      diffuse(vec3(1, 1, 1)),
-      specular(vec3(1, 1, 1))
+    : ambient(vec3(0.1)),
+      diffuse(vec3(1)),
+      specular(vec3(0.2))
 {
 }
 

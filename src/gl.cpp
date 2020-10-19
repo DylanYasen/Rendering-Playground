@@ -253,6 +253,7 @@ namespace GL
         std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
         // std::string filepath = "resources/models/junkrat/junkrat.fbx";
         // std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
+        // std::string filepath = "resources/models/robot/robot.fbx";
 
         // junkrat material
         {

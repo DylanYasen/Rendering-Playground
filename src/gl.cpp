@@ -250,21 +250,14 @@ namespace GL
     {
         // std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
         // std::string filepath = "resources/models/nanosuit/source/suit.fbx";
-        std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
-        // std::string filepath = "resources/models/junkrat/junkrat.fbx";
+        // std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
+        std::string filepath = "resources/models/junkrat/junkrat.fbx";
         // std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
         // std::string filepath = "resources/models/robot/robot.fbx";
 
-        // junkrat material
         {
-            //  transform.rotAngle = -90;
-            //  transform.rotAxis = HMM_Vec3(1,0,0);
-            //  shader->SetUniform1f("material.shininess", 32.0f);
-        }
-
-        {
-            vec3 eyepos = vec3(0.0f, 100.0f, 100.0f);
-            vec3 targetpos = vec3(0.0f, 0.0f, 0.0f);
+            vec3 eyepos = vec3(0.0f, 200.0f, 200.0f);
+            vec3 targetpos = vec3(0.0f, 200.0f, 0.0f);
             vec3 upVec = vec3(0.0f, 1.0f, 0.0f);
             camera = new Camera(80, WIDTH / HEIGHT, 1, 10000, eyepos, targetpos);
         }
@@ -282,6 +275,13 @@ namespace GL
         }
         {
             auto asset = new Asset(filepath);
+            {
+                // junkrat treatment
+                // todo: fix y during import
+                // asset->m_transform.position = vec3(0, 0, -100);
+                asset->m_transform.rotation = glm::angleAxis(glm::radians(-90.0f), vec3(1, 0, 0));
+                asset->m_transform.scale = vec3(0.5, 0.5, 0.5);
+            }
             scene->AddRenderable(asset);
         }
     }

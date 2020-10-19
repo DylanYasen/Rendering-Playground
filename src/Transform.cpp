@@ -24,7 +24,7 @@ mat4 Transform::GetLocal() const
     {
         matrix = glm::translate(matrix, position);
         matrix = glm::scale(matrix, scale);
-        matrix = glm::rotate(matrix, glm::angle(rotation), glm::axis(rotation));
+        matrix = glm::mat4_cast(rotation) * matrix;
     }
     return matrix;
 }

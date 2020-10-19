@@ -14,6 +14,11 @@ public:
 
     ~Mesh();
 
+    virtual void PreRender(const Scene* scene, const Renderer* renderer) override;
     virtual void Render(const Scene* scene, const Renderer* renderer) override;
+    
+    // todo: 
+    void Render(const Scene* scene, const Renderer* renderer, const mat4& parentTransform);
+
     virtual void Destroy() override;
 };

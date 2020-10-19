@@ -22,6 +22,7 @@ void Scene::Render(Renderer *renderer) const
 {
     for (auto &r : m_renderables)
     {
+        r->PreRender(this, renderer);
         r->Render(this, renderer);
     }
 

@@ -45,7 +45,11 @@ Mesh::~Mesh()
     delete m_vao, m_vbo, m_ibo;
 }
 
-void Mesh::Render(const Scene* scene, const Renderer *renderer)
+void Mesh::PreRender(const Scene *scene, const Renderer *renderer)
+{
+}
+
+void Mesh::Render(const Scene *scene, const Renderer *renderer)
 {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
@@ -65,8 +69,12 @@ void Mesh::Render(const Scene* scene, const Renderer *renderer)
     // todo: move TBN calculation to cpu and clean up this uniform
     m_shader->SetUniformMat4f("u_m", model);
     m_shader->SetUniformMat4f("u_mvp", mvp);
-    
+
     renderer->Render(*m_vao, *m_ibo, *m_shader);
+}
+
+void Mesh::Render(const Scene *scene, const Renderer *renderer, const mat4 &parentTransform)
+{
 }
 
 void Mesh::Destroy()

@@ -10,15 +10,15 @@
 
 Asset::Asset(const std::string &filepath)
 {
-    const aiScene *scene = FileUtil::LoadModel(filepath.c_str());
+    srcAsset = FileUtil::LoadModel(filepath.c_str());
     {
         const size_t lastSlashPos = filepath.find_last_of('/');
         m_rootpath = filepath.substr(0, lastSlashPos + 1);
         m_name = filepath.substr(lastSlashPos + 1);
     }
-    if (scene)
+    if (srcAsset)
     {
-        ProcessNode(scene, scene->mRootNode, mat4(1));
+        ProcessNode(srcAsset, srcAsset->mRootNode, mat4(1));
     }
 
     // init shader
@@ -31,14 +31,14 @@ Asset::Asset(const std::string &filepath)
         {
             r->SetShader(m_shader);
         }
-    }       
+    }
 }
 
 Asset::~Asset()
 {
 }
 
-void Asset::Render(const Scene *scene, const Renderer *renderer)
+void Asset::PreRender(const Scene *scene, const Renderer *renderer)
 {
     // light settings
     {
@@ -57,10 +57,36 @@ void Asset::Render(const Scene *scene, const Renderer *renderer)
         const vec3 &viewpos = camera->eyePos;
         m_shader->SetUniform3f("viewPos", viewpos);
     }
+}
 
-    for (const auto &r : m_meshes)
+void Asset::Render(const Scene *scene, const Renderer *renderer)
+{
+    m_transform.rotation = glm::rotate(m_transform.rotation, glm::radians(1.0f), glm::vec3(0.0, 0.0, 1.0));
+    RenderNode(scene, srcAsset->mRootNode, renderer, m_transform.GetWorld());
+}
+
+void Asset::RenderNode(const Scene *scene, const aiNode *node, const Renderer *renderer, const mat4 &accTransform)
+{
+    const auto &transform = accTransform * Math::aiMat4toMat4(node->mTransformation);
+
+    // render child nodes
+    //    const mat4& nodeAccTransform = accTransform * transform;
+    for (size_t i = 0; i < node->mNumChildren; i++)
     {
-        r->Render(scene, renderer);
+        auto childNode = node->mChildren[i];
+        RenderNode(scene, childNode, renderer, transform);
+    }
+
+    // render this nodes
+    {
+        auto range = sceneGraphMap.equal_range(node);
+        for (auto e = range.first; e != range.second; ++e)
+        {
+            auto childMesh = e->second;
+            childMesh->m_transform.localToWorld = transform;
+            childMesh->PreRender(scene, renderer);
+            childMesh->Render(scene, renderer);
+        }
     }
 }
 
@@ -81,8 +107,6 @@ void Asset::ProcessNode(const aiScene *scene, aiNode *node,
     {
         ProcessNode(scene, node->mChildren[i], accParentTransform);
     }
-
-    //    printf("mesh size:%d\n", m_meshes.size());
 }
 
 Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
@@ -104,11 +128,11 @@ Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
         transform.scale = vec3(s.x, s.y, s.z);
         transform.rotation =
             glm::angleAxis(rotAngle, Math::aiVec3ToVec3(rotAxis));
-        // transform.parentTransform = parentTransform;
-        // transform.matrix = Math::aiMat4toMat4(nodeTransform);
         transform.localToWorld = parentTransform;
     }
 
+    // todo: instead of extracting/copying out the geo info, directly use the assimp resource as buffers
+    // only things is that the assimp face/index array needs to be flatten
     // vertices
     for (size_t i = 0; i < mesh->mNumVertices; i++)
     {
@@ -152,7 +176,7 @@ Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
             printf("ERROR:unsupported primitive: %d\n", face.mNumIndices);
             continue;
         }
-        
+
         for (size_t j = 0; j < face.mNumIndices; j++)
         {
             indices.push_back(face.mIndices[j]);
@@ -172,6 +196,8 @@ Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
 
     Mesh *m = new (EResourceType::Geometry) Mesh(vertices, indices, textures,
                                                  transform, mesh->mName.C_Str());
+
+    sceneGraphMap.emplace(node, m);
     return m;
 }
 

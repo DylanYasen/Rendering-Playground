@@ -31,7 +31,7 @@ Asset::Asset(const std::string &filepath)
         {
             r->SetShader(m_shader);
         }
-    }
+    }       
 }
 
 Asset::~Asset()
@@ -146,6 +146,13 @@ Mesh *Asset::ProcessMesh(const aiScene *scene, aiNode *node,
     for (size_t i = 0; i < mesh->mNumFaces; i++)
     {
         const aiFace &face = mesh->mFaces[i];
+
+        if (face.mNumIndices != 3)
+        {
+            printf("ERROR:unsupported primitive: %d\n", face.mNumIndices);
+            continue;
+        }
+        
         for (size_t j = 0; j < face.mNumIndices; j++)
         {
             indices.push_back(face.mIndices[j]);

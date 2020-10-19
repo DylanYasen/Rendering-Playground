@@ -18,8 +18,8 @@ void Light::DrawDebugMenu()
     if (ImGui::CollapsingHeader("light"))
     {
         ImGui::InputFloat3("position", &transform.position.x);
-        ImGui::InputFloat3("ambient", &ambient.x);
-        ImGui::InputFloat3("diffuse", &diffuse.x);
-        ImGui::InputFloat3("specular", &specular.x);
+        ImGui::ColorEdit3("ambient", &ambient.x);
+        ImGui::ColorEdit3("diffuse", &diffuse.x);
+        ImGui::ColorEdit3("specular", &specular.x);
     }
 }

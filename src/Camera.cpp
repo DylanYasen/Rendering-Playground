@@ -30,7 +30,8 @@ void Camera::DrawDebugMenu()
 {
     if (ImGui::CollapsingHeader("camera"))
     {
-        ImGui::InputFloat3("view pos", &eyePos.x);
+        ImGui::InputFloat3("eye pos", &eyePos.x);
+        ImGui::InputFloat3("target pos", &lookatPos.x);
     }
     UpdateVectors();
 }

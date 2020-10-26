@@ -67,6 +67,10 @@ int main(int argc, char const *argv[])
 				GL::render(frameData);
 #endif
 				frameData.Stamp(SDL_GetPerformanceCounter());
+
+				Time::totalTimeMs = SDL_GetTicks();
+				Time::totalTimeSec = Time::totalTimeMs / 1000.0;
+				Time::deltaTime = frameData.deltaTime;
 			}
 		}
 

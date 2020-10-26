@@ -62,6 +62,9 @@ set(SOURCES
 
    ${PROJECT_SOURCE_DIR}/MemTracker.h
    ${PROJECT_SOURCE_DIR}/MemTracker.cpp
+
+   ${PROJECT_SOURCE_DIR}/Cube.h
+   ${PROJECT_SOURCE_DIR}/Cube.cpp
    
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
 

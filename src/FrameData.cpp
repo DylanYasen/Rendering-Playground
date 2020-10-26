@@ -1,4 +1,9 @@
 #include "FrameData.h"
+#include <iostream>
+
+uint32_t Time::totalTimeMs;
+float Time::totalTimeSec;
+float Time::deltaTime;
 
 FrameData::FrameData(uint64 perfPref)
     : freq(perfPref)

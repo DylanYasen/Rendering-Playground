@@ -15,3 +15,10 @@ public:
     FrameData(uint64 perfPref);
     void Stamp(uint64 perfCounter);
 };
+
+struct Time
+{
+    static uint32_t totalTimeMs;
+    static float totalTimeSec;
+    static float deltaTime;
+};

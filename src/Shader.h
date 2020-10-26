@@ -30,7 +30,8 @@ public:
 	void SetUniform3f(const std::string& name, const float v[3]);
 	void SetUniform3f(const std::string& name, const vec3& v);
 	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
-	void SetUniformMat4f(const std::string& name, const mat4& matrix);
+	void SetUniformMat4f(const std::string& name, const mat4& matrix, bool transpose = false);
+	void SetUniformMat4fArray(const std::string& name, const mat4* matArray, size_t size);
 
 private:
 	int GetUniformLocation(const std::string& name);

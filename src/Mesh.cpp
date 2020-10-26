@@ -34,6 +34,8 @@ Mesh::Mesh(const std::vector<Vertex, Allocator<Vertex>> &v, const std::vector<un
         layout.Push<float>(3); // tangent
         layout.Push<float>(3); // bitangent
         layout.Push<float>(2); // tex coords
+        layout.Push<unsigned int>(4);
+        layout.Push<float>(4);
         m_vao->AddBuffer(*m_vbo, layout);
 
         m_ibo = new IndexBuffer(&m_indices[0], m_indices.size());
@@ -51,9 +53,6 @@ void Mesh::PreRender(const Scene *scene, const Renderer *renderer)
 
 void Mesh::Render(const Scene *scene, const Renderer *renderer)
 {
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
-
     for (size_t i = 0; i < m_textures.size(); i++)
     {
         m_textures[i]->Bind(i);
@@ -71,10 +70,6 @@ void Mesh::Render(const Scene *scene, const Renderer *renderer)
     m_shader->SetUniformMat4f("u_mvp", mvp);
 
     renderer->Render(*m_vao, *m_ibo, *m_shader);
-}
-
-void Mesh::Render(const Scene *scene, const Renderer *renderer, const mat4 &parentTransform)
-{
 }
 
 void Mesh::Destroy()

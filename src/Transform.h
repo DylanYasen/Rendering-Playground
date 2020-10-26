@@ -7,6 +7,7 @@ class Transform
 public:
     Transform();
     Transform(vec3 pos);
+    Transform(const mat4& transform);
     Transform(vec3 pos, vec3 scale, vec3 rot);
 
     mat4 GetLocal() const;

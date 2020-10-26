@@ -1,4 +1,5 @@
 #include "Transform.h"
+#include <glm/gtx/matrix_decompose.hpp>
 
 Transform::Transform()
     : localToWorld(glm::identity<quat>()),
@@ -18,15 +19,17 @@ Transform::Transform(vec3 pos, vec3 scale, vec3 rot)
 {
 }
 
+Transform::Transform(const mat4 &transform)
+{
+    // glm::mat4
+    vec3 skew;
+    vec4 prespective;
+    glm::decompose(transform, scale, rotation, position, skew, prespective);
+}
+
 mat4 Transform::GetLocal() const
 {
-    auto matrix = glm::identity<mat4>();
-    {
-        matrix = glm::translate(matrix, position);
-        matrix = glm::scale(matrix, scale);
-        matrix = glm::mat4_cast(rotation) * matrix;
-    }
-    return matrix;
+    return glm::translate(mat4(1.0), position) * glm::mat4_cast(rotation) * glm::scale(mat4(1.0), scale);
 }
 
 mat4 Transform::GetWorld() const

@@ -166,98 +166,20 @@ namespace GL
         }
     } // namespace rect
 
-    namespace cube
-    {
-        mat4 model;
-        mat4 view;
-        mat4 projection;
-
-        bool init()
-        {
-            //            model = HMM_Scale(HMM_Vec3(1, 1, 1)) * HMM_Rotate(30, HMM_Vec3(0, 1, 0)) *
-            //                    HMM_Translate(HMM_Vec3(0, 0, 0));
-            //            view = HMM_Translate(HMM_Vec3(0.0f, 0.0f, -5.0f));
-            //            projection = HMM_Perspective(60.0f, WIDTH / HEIGHT, 0.1f, 1000.0f);
-            //
-            //            shader = new Shader("resources/shaders/cube.shader");
-            //            shader->Bind();
-            //            shader->SetUniformMat4f("u_m", model);
-            //            shader->SetUniformMat4f("u_v", view);
-            //            shader->SetUniformMat4f("u_p", projection);
-            //
-            //            texture = new Texture("resources/textures/cube.PNG");
-            //            texture->Bind();
-            //            shader->SetUniform1i("u_tex", 0);
-            //
-            //            const float vertices[] = {
-            //                -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-            //                0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            //                -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-            //
-            //                -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            //                0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-            //                -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            //
-            //                -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            //                -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            //                -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            //
-            //                0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            //                0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            //                0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            //
-            //                -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-            //                0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            //                -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            //
-            //                -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            //                0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            //                -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
-            //
-            //            va = new VertexArray();
-            //            {
-            //                vb = VertexBuffer(vertices, sizeof(vertices));
-            //
-            //                VertexBufferLayout layout;
-            //                layout.Push<float>(3);
-            //                layout.Push<float>(2);
-            //                va->AddBuffer(vb, layout);
-            //            }
-            //
-            //            glEnable(GL_DEPTH_TEST);
-
-            return true;
-        }
-
-        void draw()
-        {
-            renderer->Clear();
-
-            //            va->Bind();
-            //            shader->Bind();
-            //
-            //            // rotate
-            //            {
-            //                model = model * HMM_Rotate(1.0f, HMM_Vec3(1, 1, 0));
-            //                shader->SetUniformMat4f("u_m", model);
-            //            }
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-    } // namespace cube
-
     void initScene()
     {
         // std::string filepath = "resources/models/lighthouse/source/Cotman_Sam.fbx";
         // std::string filepath = "resources/models/nanosuit/source/suit.fbx";
         // std::string filepath = "resources/models/gilnean-chapel/gilneas.fbx";
-        std::string filepath = "resources/models/junkrat/junkrat.fbx";
+        // std::string filepath = "resources/models/junkrat/junkrat.fbx";
         // std::string filepath = "resources/models/chaman-ti-pche/model.fbx";
         // std::string filepath = "resources/models/robot/robot.fbx";
 
+        std::string filepath = "resources/models/knight/model.fbx";
+
         {
-            vec3 eyepos = vec3(0.0f, 200.0f, 200.0f);
-            vec3 targetpos = vec3(0.0f, 200.0f, 0.0f);
+            vec3 eyepos = vec3(0.0f, 50.0f, 100.0f);
+            vec3 targetpos = vec3(0.0f, 50.0f, 0.0f);
             vec3 upVec = vec3(0.0f, 1.0f, 0.0f);
             camera = new Camera(80, WIDTH / HEIGHT, 1, 10000, eyepos, targetpos);
         }
@@ -278,9 +200,9 @@ namespace GL
             {
                 // junkrat treatment
                 // todo: fix y during import
-                // asset->m_transform.position = vec3(0, 0, -100);
-                asset->m_transform.rotation = glm::angleAxis(glm::radians(-90.0f), vec3(1, 0, 0));
-                asset->m_transform.scale = vec3(0.5, 0.5, 0.5);
+                // asset->m_transform.position = vec3(100, 0, -100);
+                // asset->m_transform.rotation = glm::angleAxis(glm::radians(90.0f), vec3(0, 0, 1));
+                asset->m_transform.scale = vec3(0.8, 0.8, 0.8);
             }
             scene->AddRenderable(asset);
         }

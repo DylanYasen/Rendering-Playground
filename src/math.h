@@ -5,8 +5,10 @@
 
 #include <assimp/vector3.h>
 #include <assimp/matrix4x4.h>
+#include <assimp/quaternion.h>
 
 typedef glm::mat4 mat4;
+typedef glm::vec4 vec4;
 typedef glm::vec3 vec3;
 typedef glm::vec2 vec2;
 typedef glm::quat quat;
@@ -42,5 +44,10 @@ namespace Math
     static vec3 aiVec3ToVec3(const aiVector3D &aivec3)
     {
         return glm::vec3(aivec3.x, aivec3.y, aivec3.z);
+    }
+
+    static quat aiQuatToQuat(const aiQuaternion &aiQuat)
+    {
+        return quat(aiQuat.w, aiQuat.x, aiQuat.y, aiQuat.z);
     }
 }; // namespace Math

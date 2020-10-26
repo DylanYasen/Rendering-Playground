@@ -1,5 +1,7 @@
 # Rendering-Playground
 
+## GPU Skinning
+<img src="https://raw.githubusercontent.com/DylanYasen/Rendering-Playground/master/images/skinning.gif" width="60%" height="60%">
 
 ## Material & Lightmaps
 <img src="https://raw.githubusercontent.com/DylanYasen/Rendering-Playground/master/images/lightmap.gif" width="60%" height="60%">

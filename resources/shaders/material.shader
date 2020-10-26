@@ -5,12 +5,17 @@ layout(location = 1) in vec3 normal;
 layout(location = 2) in vec3 tangent;
 layout(location = 3) in vec3 bitangent;
 layout(location = 4) in vec2 texCoord;
+layout(location = 5) in ivec4 boneIDs;
+layout(location = 6) in vec4 boneWeights;
 
 uniform mat4 u_m;
 uniform mat4 u_mvp;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+
+const int MAX_BONES = 100;
+uniform mat4 gBones[MAX_BONES];
 
 out VS_OUT
 {
@@ -23,7 +28,18 @@ out VS_OUT
 
 void main()
 {
+	
+	vec4 localPos = vec4(0.0);
+	for(int i = 0; i < 4; i++) {
+		mat4 boneTransform = gBones[boneIDs[i]];
+		vec4 posePosition = boneTransform * vec4(pos, 1.0);
+		localPos += posePosition * boneWeights[i];
+
+		// todo: apply transformation to normal as well
+	}
+
 	vs_out.worldPos = vec3(u_m * vec4(pos, 1.0));
+
 	vs_out.texCoord = texCoord;
 
 	// todo: Gram-Schmidt process 
@@ -35,7 +51,7 @@ void main()
     vs_out.tangentViewPos  = TBN * viewPos;
     vs_out.tangentWorldPos = TBN * vs_out.worldPos;
 
-	gl_Position = u_mvp * vec4(pos, 1.0f);
+	gl_Position = u_mvp * localPos;
 }
 
 #shader fragment
@@ -46,6 +62,7 @@ struct Material
 	sampler2D diffuse;
 	sampler2D specular;
 	sampler2D normals;
+	sampler2D emissive;
 	float     shininess;
 };
 
@@ -92,6 +109,8 @@ void main()
 	float spec = pow(max(dot(normal, halfwaydir), 0.0), material.shininess);
 	vec3 specular = light.specular * spec * texture(material.specular, fs_in.texCoord).rgb;
 
-	vec3 result = ambient + diffuse + specular; 
+	vec3 emissive = texture(material.emissive, fs_in.texCoord).rgb;
+
+	vec3 result = emissive + ambient + diffuse + specular; 
 	outColor = vec4(result, 1.0f);
 }

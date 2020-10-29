@@ -61,18 +61,6 @@ Asset::Asset(const std::string &filepath)
 
         ProcessNode(srcAsset, srcAsset->mRootNode, m_transform.GetWorld());
     }
-
-    // init shader
-    {
-        // todo: abstract out material & material instances
-        m_shader = new Shader("resources/shaders/material.shader");
-
-        // assign shader
-        for (const auto &r : m_meshes)
-        {
-            r->SetShader(m_shader);
-        }
-    }
 }
 
 Asset::~Asset()
@@ -220,7 +208,7 @@ void Asset::UpdateAnimNodes(float animTime, aiNode *node, const mat4 &parentTran
         localTransform = transMat * rotMat; // * scaleMat;
     }
 
-    const mat4 transform = parentTransform * localTransform;
+    const mat4 &transform = parentTransform * localTransform;
 
     for (size_t i = 0; i < node->mNumChildren; i++)
     {
@@ -234,26 +222,8 @@ void Asset::UpdateAnimNodes(float animTime, aiNode *node, const mat4 &parentTran
     }
 }
 
-void Asset::PreRender(const Scene *scene, const Renderer *renderer)
+void Asset::PreRender(const Scene *scene, const Renderer *renderer, Shader *shader)
 {
-    // light settings
-    {
-        Light *light = scene->GetLight();
-        m_shader->Bind();
-        m_shader->SetUniform3f("light.ambient", light->ambient);
-        m_shader->SetUniform3f("light.diffuse", light->diffuse);
-        m_shader->SetUniform3f("light.specular", light->specular);
-
-        m_shader->SetUniform3f("lightPos", light->transform.position);
-    }
-
-    // view setting
-    {
-        Camera *camera = scene->GetCamera();
-        const vec3 &viewpos = camera->eyePos;
-        m_shader->SetUniform3f("viewPos", viewpos);
-    }
-
     {
         rootInverseTransform = glm::inverse(Math::aiMat4toMat4(srcAsset->mRootNode->mTransformation));
         float ticksPerSec = (float)(srcAsset->mAnimations[0]->mTicksPerSecond != 0.0 ? srcAsset->mAnimations[0]->mTicksPerSecond : 25.0f);
@@ -264,17 +234,17 @@ void Asset::PreRender(const Scene *scene, const Renderer *renderer)
     }
     {
         // todo: optimize this, for example only pass 4x3
-        m_shader->SetUniformMat4fArray("gBones", boneTransforms, boneCount);
+        shader->SetUniformMat4fArray("gBones", boneTransforms, boneCount);
     }
 }
 
-void Asset::Render(const Scene *scene, const Renderer *renderer)
+void Asset::Render(const Scene *scene, const Renderer *renderer, Shader *shader)
 {
     // m_transform.rotation = glm::rotate(m_transform.rotation, glm::radians(1.0f), glm::vec3(0.0, 1.0, 0.0));
-    RenderNode(scene, srcAsset->mRootNode, renderer, m_transform.GetWorld()); //m_transform.GetWorld()// glm::identity<mat4>()
+    RenderNode(scene, srcAsset->mRootNode, renderer, m_transform.GetWorld(), shader); //m_transform.GetWorld()// glm::identity<mat4>()
 }
 
-void Asset::RenderNode(const Scene *scene, const aiNode *node, const Renderer *renderer, const mat4 &accTransform)
+void Asset::RenderNode(const Scene *scene, const aiNode *node, const Renderer *renderer, const mat4 &accTransform, Shader *shader)
 {
     const auto &localTransform = Math::aiMat4toMat4(node->mTransformation);
     const auto &worldTransform = accTransform * localTransform;
@@ -286,8 +256,7 @@ void Asset::RenderNode(const Scene *scene, const aiNode *node, const Renderer *r
         {
             auto childMesh = e->second;
             childMesh->m_transform.localToWorld = accTransform;
-            childMesh->PreRender(scene, renderer);
-            childMesh->Render(scene, renderer);
+            childMesh->Render(scene, renderer, shader);
         }
     }
 
@@ -295,7 +264,7 @@ void Asset::RenderNode(const Scene *scene, const aiNode *node, const Renderer *r
     for (size_t i = 0; i < node->mNumChildren; i++)
     {
         auto childNode = node->mChildren[i];
-        RenderNode(scene, childNode, renderer, worldTransform);
+        RenderNode(scene, childNode, renderer, worldTransform, shader);
     }
 }
 

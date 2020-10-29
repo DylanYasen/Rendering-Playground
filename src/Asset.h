@@ -51,13 +51,13 @@ public:
     Asset(const std::string &filepath);
     ~Asset();
 
-    virtual void PreRender(const Scene *scene, const Renderer *renderer) override;
-    virtual void Render(const Scene *scene, const Renderer *renderer) override;
+    virtual void PreRender(const Scene *scene, const Renderer *renderer, class Shader *shader) override;
+    virtual void Render(const Scene *scene, const Renderer *renderer, Shader *shader) override;
 
     virtual void Destroy() override;
 
 private:
-    void RenderNode(const Scene *scene, const aiNode *node, const Renderer *renderer, const mat4 &accTransform);
+    void RenderNode(const Scene *scene, const aiNode *node, const Renderer *renderer, const mat4 &accTransform, Shader* shader);
 
     void ProcessNode();
 

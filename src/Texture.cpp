@@ -3,6 +3,8 @@
 #include "stb_image.h"
 #include "Allocator.h"
 
+static unsigned int usedTextureSlot = 0;
+
 Texture::Texture(const std::string &path, const std::string &textureType)
 	: rendererID(0), filepath(path), type(textureType),
 	  buffer(nullptr), width(0), height(0), bpp(0)
@@ -46,6 +48,22 @@ Texture::Texture(const std::string &path, const std::string &textureType)
 	}
 }
 
+Texture::Texture(unsigned int width, unsigned int height)
+	: width(width), height(height)
+{
+	GLCall(glGenTextures(1, &rendererID));
+	GLCall(glBindTexture(GL_TEXTURE_2D, rendererID));
+
+	// TODO: parameterize
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+						width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0));
+
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+}
+
 Texture::~Texture()
 {
 	MemTracker::untrack(rendererID);
@@ -54,7 +72,7 @@ Texture::~Texture()
 
 void Texture::Bind(unsigned int slot /*= 0*/) const
 {
-	GLCall(glActiveTexture(GL_TEXTURE0 + slot));
+	GLCall(glActiveTexture(GL_TEXTURE0 + rendererID));
 	GLCall(glBindTexture(GL_TEXTURE_2D, rendererID));
 }
 

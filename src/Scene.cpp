@@ -30,7 +30,6 @@ Scene::Scene(std::string name)
     {
         diffuseShader = new Shader("resources/shaders/material.shader");
         shadowMapShader = new Shader("resources/shaders/shadowMap.shader");
-        renderDepthShader = new Shader("resources/shaders/renderDepth.shader");
         defaultShader = new Shader("resources/shaders/default.shader");
     }
 
@@ -62,7 +61,6 @@ Scene::~Scene()
 
     delete diffuseShader;
     delete shadowMapShader;
-    delete renderDepthShader;
 
     delete shadowMap;
     delete quad;

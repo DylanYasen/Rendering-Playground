@@ -14,7 +14,7 @@ public:
     Scene(std::string name = "untitled");
     ~Scene();
 
-    void Render(Renderer* renderer);
+    void Render(Renderer *renderer);
 
     void AddRenderable(Renderable *r) { m_renderables.push_back(r); };
     void SetCamera(Camera *camera);
@@ -31,10 +31,9 @@ private:
     Light *m_light;
     std::string m_name;
 
-    ShadowMap* shadowMap;
+    ShadowMap *shadowMap;
 
-    class Shader* diffuseShader;
-    class Shader* shadowMapShader;
-    class Shader* renderDepthShader;
-    class Shader* defaultShader;
+    class Shader *diffuseShader;
+    class Shader *shadowMapShader;
+    class Shader *defaultShader;
 };

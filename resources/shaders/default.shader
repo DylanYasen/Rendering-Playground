@@ -50,7 +50,7 @@ float calculateShadow(vec4 fragPosLightSpace)
     
     float minDepth = texture(shadowMap, screenSpacePos.xy).r;
     float fragDepth = screenSpacePos.z - 0.005;
-    
+
     return step(minDepth, fragDepth);
 }
 
@@ -63,6 +63,4 @@ void main()
     color *= visible;
 
     outColor = vec4(color, 1.0);
-    
-    // outColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

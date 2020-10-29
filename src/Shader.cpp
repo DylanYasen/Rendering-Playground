@@ -86,11 +86,11 @@ unsigned int Shader::CreateShader(const struct ShaderSource &source)
 	GLCall(unsigned int programID = glCreateProgram());
 
 	unsigned int vertexShader = CompileShader(source.vertex.c_str(), GL_VERTEX_SHADER);
-	if (vertexShader == NULL)
+	if (!vertexShader)
 		return false;
 
 	unsigned int fragShader = CompileShader(source.fragment.c_str(), GL_FRAGMENT_SHADER);
-	if (fragShader == NULL)
+	if (!fragShader)
 		return false;
 
 	GLCall(glAttachShader(programID, vertexShader));

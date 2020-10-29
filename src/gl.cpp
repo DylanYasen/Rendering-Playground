@@ -184,11 +184,7 @@ namespace GL
             camera = new Camera(80, WIDTH / HEIGHT, 1, 10000, eyepos, targetpos);
         }
 
-        Light *light = new Light();
-        {
-            Transform t(vec3(200, 500, 100));
-            light->transform = t;
-        }
+         Light *light = new Light();
 
         scene = new Scene("scene1");
         {

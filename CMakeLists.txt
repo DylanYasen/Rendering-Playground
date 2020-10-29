@@ -65,6 +65,18 @@ set(SOURCES
 
    ${PROJECT_SOURCE_DIR}/Cube.h
    ${PROJECT_SOURCE_DIR}/Cube.cpp
+
+   ${PROJECT_SOURCE_DIR}/ShadowMap.h
+   ${PROJECT_SOURCE_DIR}/ShadowMap.cpp
+
+   ${PROJECT_SOURCE_DIR}/FrameBuffer.h
+   ${PROJECT_SOURCE_DIR}/FrameBuffer.cpp
+
+   ${PROJECT_SOURCE_DIR}/FullscreenQuad.h
+   ${PROJECT_SOURCE_DIR}/FullscreenQuad.cpp
+
+   ${PROJECT_SOURCE_DIR}/Quad.h
+   ${PROJECT_SOURCE_DIR}/Quad.cpp
    
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
 

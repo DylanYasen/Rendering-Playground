@@ -7,7 +7,7 @@ public:
     ~Camera();
 
     // todo: abstract this out to some interface
-    void DrawDebugMenu();
+    bool DrawDebugMenu();
 
     mat4 projMatrix;
     mat4 viewMatrix;

@@ -1,4 +1,6 @@
 #include "Camera.h"
+#include "Scene.h"
+
 #include "imgui.h"
 
 Camera::Camera(float fov, float aspectRatio, float near, float far,
@@ -26,12 +28,19 @@ void Camera::UpdateVectors()
     viewMatrix = glm::lookAt(eyePos, lookatPos, up);
 }
 
-void Camera::DrawDebugMenu()
+bool Camera::DrawDebugMenu()
 {
     if (ImGui::CollapsingHeader("camera"))
     {
-        ImGui::InputFloat3("eye pos", &eyePos.x);
-        ImGui::InputFloat3("target pos", &lookatPos.x);
+        bool changed = ImGui::InputFloat3("eye pos", &eyePos.x);
+        changed |= ImGui::InputFloat3("target pos", &lookatPos.x);
+
+        if (changed)
+        {
+            UpdateVectors();
+            return changed;
+        }
     }
-    UpdateVectors();
+
+    return false;
 }

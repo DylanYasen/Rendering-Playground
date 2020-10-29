@@ -33,13 +33,12 @@ class Renderable
 public:
     Renderable();
     Renderable(const std::vector<Vertex, Allocator<Vertex>> &v, const std::vector<unsigned int> &i);
+    ~Renderable();
 
-    virtual void PreRender(const Scene *scene, const Renderer *renderer) = 0;
-    virtual void Render(const Scene *scene, const Renderer *renderer) = 0;
+    virtual void PreRender(const Scene *scene, const Renderer *renderer, Shader *shader) = 0;
+    virtual void Render(const Scene *scene, const Renderer *renderer, Shader *shader) = 0;
 
     virtual void Destroy() = 0;
-
-    void SetShader(Shader *shader) { m_shader = shader; };
 
 public:
     Transform m_transform;
@@ -53,7 +52,6 @@ protected:
     VertexArray *m_vao;
     VertexBuffer *m_vbo;
     IndexBuffer *m_ibo;
-    Shader *m_shader;
 
     std::string m_name;
 };

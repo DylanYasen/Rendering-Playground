@@ -122,7 +122,7 @@ void Cube::PreRender(const Scene *scene, const Renderer *renderer, Shader *shade
 
 void Cube::Render(const Scene *scene, const Renderer *renderer, Shader *shader)
 {
-    renderer->Render(*m_vao, *m_ibo, shader);
+    renderer->Render(*m_vao, *m_ibo, *shader);
 }
 
 void Cube::Destroy()

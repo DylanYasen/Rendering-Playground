@@ -44,32 +44,26 @@ Mesh::Mesh(const std::vector<Vertex, Allocator<Vertex>> &v, const std::vector<un
 
 Mesh::~Mesh()
 {
-    delete m_vao, m_vbo, m_ibo;
 }
 
-void Mesh::PreRender(const Scene *scene, const Renderer *renderer)
+void Mesh::PreRender(const Scene *scene, const Renderer *renderer, Shader *shader)
 {
 }
 
-void Mesh::Render(const Scene *scene, const Renderer *renderer)
+void Mesh::Render(const Scene *scene, const Renderer *renderer, Shader *shader)
 {
     for (size_t i = 0; i < m_textures.size(); i++)
     {
         m_textures[i]->Bind(i);
-        m_shader->SetUniform1i(m_textures[i]->GetMaterialTypeName(), i);
+        shader->SetUniform1i(m_textures[i]->GetMaterialTypeName(), m_textures[i]->rendererID);
     }
 
     const auto &model = m_transform.GetWorld();
-    const auto camera = scene->GetCamera();
-
-    const mat4 &mvp =
-        camera->projMatrix * camera->viewMatrix * model;
 
     // todo: move TBN calculation to cpu and clean up this uniform
-    m_shader->SetUniformMat4f("u_m", model);
-    m_shader->SetUniformMat4f("u_mvp", mvp);
+    shader->SetUniformMat4f("u_m", model);
 
-    renderer->Render(*m_vao, *m_ibo, *m_shader);
+    renderer->Render(*m_vao, *m_ibo, *shader);
 }
 
 void Mesh::Destroy()

@@ -118,11 +118,11 @@ Cube::Cube()
     m_ibo = new IndexBuffer(&m_indices[0], m_indices.size());
 }
 
-void Cube::PreRender(const Scene *scene, const Renderer *renderer) {}
+void Cube::PreRender(const Scene *scene, const Renderer *renderer, Shader *shader) {}
 
-void Cube::Render(const Scene *scene, const Renderer *renderer)
+void Cube::Render(const Scene *scene, const Renderer *renderer, Shader *shader)
 {
-    renderer->Render(*m_vao, *m_ibo, *m_shader);
+    renderer->Render(*m_vao, *m_ibo, shader);
 }
 
 void Cube::Destroy()

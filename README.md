@@ -1,5 +1,8 @@
 # Rendering-Playground
 
+## Shadow Map
+<img src="https://raw.githubusercontent.com/DylanYasen/Rendering-Playground/master/images/shadow.gif" width="60%" height="60%">
+
 ## GPU Skinning
 <img src="https://raw.githubusercontent.com/DylanYasen/Rendering-Playground/master/images/skinning.gif" width="60%" height="60%">
 

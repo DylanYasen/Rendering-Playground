@@ -9,7 +9,7 @@ static const float vertices[] = {
     -1, -1, 0.0, 0.0,
     -1, 1, 0.0, 1.0,
     1, 1, 1.0, 1.0,
-    1, -1, 1.0, 0.0};   
+    1, -1, 1.0, 0.0};
 
 static const unsigned int indices[] = {
     0, 1, 2,
@@ -23,7 +23,7 @@ FullscreenQuad::FullscreenQuad()
 
         VertexBufferLayout layout;
         layout.Push<float>(2); // pos
-        layout.Push<float>(2); // tex coords
+        layout.Push<float>(2); // uv
         m_vao->AddBuffer(*m_vbo, layout);
 
         m_ibo = new IndexBuffer(indices, 6);

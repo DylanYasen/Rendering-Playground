@@ -52,6 +52,10 @@ Texture::Texture(unsigned int width, unsigned int height)
 	: width(width), height(height)
 {
 	GLCall(glGenTextures(1, &rendererID));
+}
+
+void Texture::InitDepthAttachment()
+{
 	GLCall(glBindTexture(GL_TEXTURE_2D, rendererID));
 
 	// TODO: parameterize
@@ -62,6 +66,24 @@ Texture::Texture(unsigned int width, unsigned int height)
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+void Texture::InitColor()
+{
+	GLCall(glBindTexture(GL_TEXTURE_2D, rendererID));
+
+	// TODO: parameterize
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F,
+						width, height, 0, GL_RGBA, GL_FLOAT, 0));
+
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
 Texture::~Texture()

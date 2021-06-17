@@ -13,6 +13,7 @@ auto constexpr height = 1024;
 ShadowMap::ShadowMap(/* args */)
 {
     depthMap = new Texture(width, height);
+    depthMap->InitDepthAttachment();
 
     // create
     GLCall(glGenFramebuffers(1, &fboID));
@@ -50,7 +51,7 @@ void ShadowMap::UnBind()
 
 void ShadowMap::DrawDebugMenu()
 {
-    ImGui::Begin("depth");
+    ImGui::Begin("shadow map");
     {
         // Using a Child allow to fill all the space of the window.
         // It also alows customization

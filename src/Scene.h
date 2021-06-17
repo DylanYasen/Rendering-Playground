@@ -33,7 +33,10 @@ private:
 
     ShadowMap *shadowMap;
 
+    class PostProcessing* postProcessing;
+
     class Shader *diffuseShader;
     class Shader *shadowMapShader;
     class Shader *defaultShader;
+    class Shader *postPorcessShader;
 };

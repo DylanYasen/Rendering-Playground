@@ -7,6 +7,7 @@
 
 // shadow map temp
 #include "ShadowMap.h"
+#include "Postprocessing.h"
 #include "gl.h"
 #include "FullscreenQuad.h"
 #include "Texture.h"
@@ -26,11 +27,13 @@ Scene::Scene(std::string name)
     : m_name(name)
 {
     shadowMap = new ShadowMap();
+    postProcessing = new PostProcessing(WIDTH, HEIGHT);
 
     {
         diffuseShader = new Shader("resources/shaders/material.shader");
         shadowMapShader = new Shader("resources/shaders/shadowMap.shader");
         defaultShader = new Shader("resources/shaders/default.shader");
+        postPorcessShader = new Shader("resources/shaders/postprocess.shader");
     }
 
     quad = new FullscreenQuad();
@@ -50,6 +53,12 @@ Scene::Scene(std::string name)
         defaultShader->SetUniform1i("shadowMap", shadowMap->depthMap->rendererID);
         defaultShader->Unbind();
     }
+
+    {
+        postPorcessShader->Bind();
+        postPorcessShader->SetUniform1i("colorOutput", postProcessing->finalColorTex->rendererID);
+        postPorcessShader->Unbind();
+    }
 }
 
 Scene::~Scene()
@@ -61,6 +70,8 @@ Scene::~Scene()
 
     delete diffuseShader;
     delete shadowMapShader;
+    delete defaultShader;
+    delete postPorcessShader;
 
     delete shadowMap;
     delete quad;
@@ -138,9 +149,10 @@ void Scene::Render(Renderer *renderer)
     shadowMap->UnBind();
 
     // reder scene normal
+    postProcessing->Bind();
     {
         GLCall(glViewport(0, 0, WIDTH, HEIGHT));
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        // GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
         shadowMap->depthMap->Bind();
 
@@ -156,13 +168,24 @@ void Scene::Render(Renderer *renderer)
 
         shadowMap->depthMap->Unbind();
     }
+    postProcessing->UnBind();
 
-    shadowMap->DrawDebugMenu();
+    postPorcessShader->Bind();
+    postProcessing->finalColorTex->Bind();
+    quad->Render(this, renderer, postPorcessShader);
+    postProcessing->finalColorTex->Unbind();
+    postPorcessShader->Unbind();
 
-    ImGui::Begin("scene", 0, ImGuiWindowFlags_AlwaysAutoResize);
-    if (m_camera->DrawDebugMenu())
-        SetCamera(m_camera);
-    if (m_light->DrawDebugMenu())
-        SetLight(m_light);
-    ImGui::End();
+    // debug
+    {
+        shadowMap->DrawDebugMenu();
+        postProcessing->DrawDebugMenu();
+
+        ImGui::Begin("scene", 0, ImGuiWindowFlags_AlwaysAutoResize);
+        if (m_camera->DrawDebugMenu())
+            SetCamera(m_camera);
+        if (m_light->DrawDebugMenu())
+            SetLight(m_light);
+        ImGui::End();
+    }
 }

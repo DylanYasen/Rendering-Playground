@@ -77,6 +77,9 @@ set(SOURCES
 
    ${PROJECT_SOURCE_DIR}/Quad.h
    ${PROJECT_SOURCE_DIR}/Quad.cpp
+
+   ${PROJECT_SOURCE_DIR}/PostProcessing.h
+   ${PROJECT_SOURCE_DIR}/PostProcessing.cpp
    
    ${PROJECT_SOURCE_DIR}/external/stb_image.cpp
 
